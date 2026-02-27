@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sandbox Digital Labs — Software Design & App</title>
+    <title>Sandbox Digital Labs — Software Design & Engineering</title>
     <meta
       name="description"
-      content="Sandbox Digital Labs is a product-focused studio. Crafting scalable web and mobile solutions with a focus on user experience"
+      content="Sandbox Digital Labs builds modern web and mobile software: product strategy, UX, engineering, and delivery."
     />
     <meta name="theme-color" content="#0b1220" />
 
@@ -14,7 +14,7 @@
     <meta property="og:title" content="Sandbox Digital Labs" />
     <meta
       property="og:description"
-      content="App software design & engineering studio. Strategy → Build → Launch."
+      content="Software design & engineering studio. Strategy → UX → Build → Launch."
     />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="og-image.png" />
@@ -58,13 +58,13 @@
           <div class="hero-copy">
             <p class="kicker">Software design & engineering</p>
             <h1>
-              Engineering and building
-              <span class="accent">Custom Apps</span> for
-              <span class="accent">everyone.</span>
+              Build products that ship
+              <span class="accent">cleanly</span>, scale
+              <span class="accent">confidently</span>, and delight users.
             </h1>
             <p class="lead">
-              Sandbox Digital Labs is where high-level strategy meets hands-on execution. 
-              We specialize in engineering custom applications
+              Sandbox Digital Labs is a product-focused studio. We partner with teams to go from idea → prototype → production with
+              speed and craft.
             </p>
 
             <div class="hero-ctas">
@@ -72,16 +72,53 @@
               <a class="btn btn-ghost" href="#about">Learn more</a>
             </div>
 
+            <div class="hero-badges" role="list" aria-label="Key capabilities">
+              <div class="badge" role="listitem">Product Strategy</div>
+              <div class="badge" role="listitem">UX / UI</div>
+              <div class="badge" role="listitem">Web & Mobile</div>
+              <div class="badge" role="listitem">Cloud & DevOps</div>
+            </div>
           </div>
-
-          <!-- NOTE: cards removed as requested (hero metrics card was removed) -->
         </div>
 
+        <div class="container trust">
+          <p class="trust-label">Trusted by teams building:</p>
+          <div class="trust-logos" aria-label="Industries served">
+            <span class="trust-logo">FinTech</span>
+            <span class="trust-logo">Health</span>
+            <span class="trust-logo">SaaS</span>
+            <span class="trust-logo">E‑commerce</span>
+            <span class="trust-logo">AI tools</span>
+          </div>
         </div>
       </section>
 
       <!-- Testimonials -->
+      <section class="section section-alt">
+        <div class="container">
+          <div class="section-head">
+            <h2>What partners say</h2>
+            <p>Replace with real quotes as you collect them.</p>
+          </div>
 
+          <div class="quotes">
+            <figure class="quote">
+              <blockquote>“Sandbox Digital Labs brought senior-level execution. We shipped faster, with fewer surprises.”</blockquote>
+              <figcaption>Product Lead, B2B SaaS</figcaption>
+            </figure>
+
+            <figure class="quote">
+              <blockquote>“Clear communication, tight scope control, and high quality. The weekly demos were a game changer.”</blockquote>
+              <figcaption>CTO, Startup</figcaption>
+            </figure>
+
+            <figure class="quote">
+              <blockquote>“They helped us modernize safely and built a foundation we can extend without rewriting everything.”</blockquote>
+              <figcaption>Engineering Manager, Enterprise</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
 
       <!-- About -->
       <section id="about" class="section">
@@ -89,11 +126,25 @@
           <div class="section-head">
             <h2>About</h2>
             <p>
-              Sandbox Digital Labs bridges the gap between sophisticated design and rigorous engineering
-              to deliver custom web and mobile solutions that work perfectly from day one.
+              Sandbox Digital Labs is a software company focused on practical innovation—turning complex requirements into
+              simple, reliable products.
             </p>
           </div>
 
+          <div class="about-points">
+            <div class="about-point">
+              <h3>Senior craftsmanship</h3>
+              <p>We keep teams small and experienced so decisions are fast and implementation stays clean.</p>
+            </div>
+            <div class="about-point">
+              <h3>Security & reliability</h3>
+              <p>We treat security, performance, and observability as first-class features from day one.</p>
+            </div>
+            <div class="about-point">
+              <h3>Transparent delivery</h3>
+              <p>Weekly check-ins, shared roadmaps, and a clear view into progress and tradeoffs.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -103,9 +154,7 @@
           <div>
             <div class="section-head">
               <h2>Contact</h2>
-              <p>
-                Tell us what you’re building. We’ll respond within 1–2 business days with next steps.
-              </p>
+              <p>Tell us what you’re building. We’ll respond within 1–2 business days with next steps.</p>
             </div>
 
             <div class="contact-cards">
@@ -114,12 +163,35 @@
                 <p>
                   <a href="mailto:contact@sandboxdigitallabs.com">contact@sandboxdigitallabs.com</a>
                 </p>
-              
+              </div>
+
+              <div class="contact-card">
+                <h3>Working hours</h3>
+                <p>Mon–Fri</p>
               </div>
             </div>
           </div>
 
-          <form class="form" id="contact-form" novalidate>
+          <!-- Netlify Forms: real handler -->
+          <form
+            class="form"
+            id="contact-form"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            action="/success/"
+          >
+            <!-- Required for Netlify to detect the form -->
+            <input type="hidden" name="form-name" value="contact" />
+
+            <!-- Honeypot field (spam protection) -->
+            <p class="sr-only">
+              <label>
+                Don’t fill this out if you’re human: <input name="bot-field" />
+              </label>
+            </p>
+
             <div class="field">
               <label for="name">Name</label>
               <input id="name" name="name" type="text" autocomplete="name" required />
@@ -144,8 +216,9 @@
             </div>
 
             <button class="btn" type="submit">Send message</button>
+
             <p class="form-note muted">
-              This demo form opens your email client (no backend). Want a real form handler? Tell me your preference (Formspree, Netlify, etc.).
+              This form is handled by Netlify. After submission you’ll be redirected to a confirmation page.
             </p>
 
             <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
