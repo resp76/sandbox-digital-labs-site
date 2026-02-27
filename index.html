@@ -20,6 +20,13 @@
     <meta property="og:image" content="og-image.png" />
     <meta property="og:url" content="" />
 
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
 
@@ -124,21 +131,186 @@
           <div class="section-head">
             <h2>Services</h2>
             <p>
-              Custom App Development for IOS and Android
+              A small, senior team that covers the full lifecycle: discovery, design, engineering, and launch—without the overhead.
             </p>
           </div>
 
-         
+          <div class="cards">
+            <article class="card">
+              <h3>Product Strategy</h3>
+              <p>Clarify goals, users, and scope. Align stakeholders and define an execution plan that reduces risk.</p>
+              <ul class="bullets">
+                <li>Discovery workshops</li>
+                <li>Roadmap & milestones</li>
+                <li>Technical planning</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>UX / UI Design</h3>
+              <p>Design systems and interfaces that feel simple, fast, and consistent across devices.</p>
+              <ul class="bullets">
+                <li>Wireframes & prototypes</li>
+                <li>Design systems</li>
+                <li>Usability testing</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Web & Mobile Engineering</h3>
+              <p>Build robust frontends, APIs, and mobile apps with clean architecture and predictable delivery.</p>
+              <ul class="bullets">
+                <li>React / Next.js</li>
+                <li>API design</li>
+                <li>Performance & accessibility</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Cloud, DevOps & Data</h3>
+              <p>Ship securely with CI/CD, observability, and infrastructure that scales without surprises.</p>
+              <ul class="bullets">
+                <li>CI/CD pipelines</li>
+                <li>Monitoring & logging</li>
+                <li>Databases & migrations</li>
+              </ul>
+            </article>
+          </div>
+        </div>
       </section>
 
       <!-- Work -->
-      
+      <section id="work" class="section section-alt">
+        <div class="container">
+          <div class="section-head">
+            <h2>Selected work</h2>
+            <p>
+              Examples of the kinds of engagements we run. Swap these with real case studies when you’re ready.
+            </p>
+          </div>
+
+          <div class="work-grid">
+            <article class="work-item">
+              <div class="work-top">
+                <h3>Launch an MVP in 6 weeks</h3>
+                <p class="work-tag">Startup • Web app</p>
+              </div>
+              <p>
+                Rapid discovery, prototype, and a production-ready MVP with analytics, authentication, and payments.
+              </p>
+              <ul class="bullets">
+                <li>Scope: onboarding + core workflow</li>
+                <li>Stack: React, Node, Postgres</li>
+                <li>Outcome: first revenue within 60 days</li>
+              </ul>
+            </article>
+
+            <article class="work-item">
+              <div class="work-top">
+                <h3>Modernize a legacy platform</h3>
+                <p class="work-tag">Enterprise • Migration</p>
+              </div>
+              <p>
+                Incremental refactor with parallel run, improved performance, and safer deployments.
+              </p>
+              <ul class="bullets">
+                <li>Strangler pattern approach</li>
+                <li>Test coverage + CI pipelines</li>
+                <li>50% faster page loads</li>
+              </ul>
+            </article>
+
+            <article class="work-item">
+              <div class="work-top">
+                <h3>Design system + component library</h3>
+                <p class="work-tag">SaaS • UX/UI</p>
+              </div>
+              <p>
+                A reusable design language and components to accelerate feature delivery and maintain consistency.
+              </p>
+              <ul class="bullets">
+                <li>Tokens + theming</li>
+                <li>Accessibility standards</li>
+                <li>Docs + usage guidelines</li>
+              </ul>
+            </article>
+          </div>
+        </div>
       </section>
 
       <!-- Process -->
-      
+      <section id="process" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2>How we work</h2>
+            <p>Clear communication, short feedback loops, and visible progress. No black boxes.</p>
+          </div>
+
+          <ol class="steps">
+            <li class="step">
+              <div class="step-num">1</div>
+              <div>
+                <h3>Discover</h3>
+                <p>We align on users, outcomes, constraints, and success metrics.</p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-num">2</div>
+              <div>
+                <h3>Design</h3>
+                <p>We prototype quickly, validate assumptions, and define a system that scales.</p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-num">3</div>
+              <div>
+                <h3>Build</h3>
+                <p>We ship in increments with weekly demos, testing, and code quality standards.</p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-num">4</div>
+              <div>
+                <h3>Launch & iterate</h3>
+                <p>We monitor, learn, and improve with data-driven iteration.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
       <!-- Testimonials -->
-     
+      <section class="section section-alt">
+        <div class="container">
+          <div class="section-head">
+            <h2>What partners say</h2>
+            <p>Replace with real quotes as you collect them.</p>
+          </div>
+
+          <div class="quotes">
+            <figure class="quote">
+              <blockquote>
+                “Sandbox Digital Labs brought senior-level execution. We shipped faster, with fewer surprises.”
+              </blockquote>
+              <figcaption>Product Lead, B2B SaaS</figcaption>
+            </figure>
+
+            <figure class="quote">
+              <blockquote>
+                “Clear communication, tight scope control, and high quality. The weekly demos were a game changer.”
+              </blockquote>
+              <figcaption>CTO, Startup</figcaption>
+            </figure>
+
+            <figure class="quote">
+              <blockquote>
+                “They helped us modernize safely and built a foundation we can extend without rewriting everything.”
+              </blockquote>
+              <figcaption>Engineering Manager, Enterprise</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
 
       <!-- About -->
       <section id="about" class="section">
@@ -147,12 +319,25 @@
             <div class="section-head">
               <h2>About</h2>
               <p>
-                Sandbox Digital Labs is a app software company focused on practical innovation—turning complex requirements into
+                Sandbox Digital Labs is a software company focused on practical innovation—turning complex requirements into
                 simple, reliable products.
               </p>
             </div>
 
-        
+            <div class="about-points">
+              <div class="about-point">
+                <h3>Senior craftsmanship</h3>
+                <p>We keep teams small and experienced so decisions are fast and implementation stays clean.</p>
+              </div>
+              <div class="about-point">
+                <h3>Security & reliability</h3>
+                <p>We treat security, performance, and observability as first-class features from day one.</p>
+              </div>
+              <div class="about-point">
+                <h3>Transparent delivery</h3>
+                <p>Weekly check-ins, shared roadmaps, and a clear view into progress and tradeoffs.</p>
+              </div>
+            </div>
           </div>
 
           <aside class="about-aside" aria-label="Quick facts">
