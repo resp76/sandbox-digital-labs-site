@@ -27,7 +27,10 @@
 
     // Close on Escape
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") setMenu(false);
+      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setMenu(false);
+        toggle.focus();
+      }
     });
 
     // Close when clicking outside
@@ -89,7 +92,7 @@
         return;
       }
 
-      const to = "hello@sandboxdigitallabs.com";
+      const to = "contact@sandboxdigitallabs.com";
       const subject = encodeURIComponent(`Project inquiry from ${data.name}`);
       const body = encodeURIComponent(
         [
