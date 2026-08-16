@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const pages = [
-  ['/', 'Sandbox Digital Labs', 'Engineering'],
+  ['/', 'Sandbox Digital Labs', 'We build software'],
   ['/promptcept/', 'PromptCept', 'From concept'],
   ['/promptcept/support/', 'Support', 'How can we help'],
   ['/promptcept/privacy/', 'Privacy Policy', 'Privacy Policy'],
