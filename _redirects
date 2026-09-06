@@ -1,0 +1,5 @@
+# The App Store listing and the shipped app both point at the old PromptCept
+# privacy URL, so it must keep resolving. The policy now covers the company
+# site as well and lives at /privacy/.
+/promptcept/privacy/  /privacy/  301
+/promptcept/privacy   /privacy/  301
