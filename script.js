@@ -48,6 +48,13 @@
   const showError = (field, msg) => {
     const el = document.querySelector(`[data-error-for="${field}"]`);
     if (el) el.textContent = msg || "";
+    // Announce the failure on the control itself, not just as adjacent text,
+    // so assistive technology reports which field needs attention.
+    const input = document.getElementById(field);
+    if (input) {
+      if (msg) input.setAttribute("aria-invalid", "true");
+      else input.removeAttribute("aria-invalid");
+    }
   };
 
   const validate = (data) => {
@@ -89,6 +96,7 @@
 
       if (!validate(data)) {
         if (status) status.textContent = "Please fix the highlighted fields and try again.";
+        document.querySelector("#contact-form [aria-invalid='true']")?.focus();
         return;
       }
 

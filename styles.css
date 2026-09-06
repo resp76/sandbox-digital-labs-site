@@ -179,7 +179,9 @@ a:hover { text-decoration: underline; }
   line-height: 1.06;
 }
 .accent {
-  background: linear-gradient(90deg, var(--accent), #000);
+  /* Starts at --accent-strong, not --accent: every point of the gradient must
+     clear 3:1 against white, and --accent is only 2.8:1. */
+  background: linear-gradient(90deg, var(--accent-strong), #000);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -451,4 +453,35 @@ input:focus, textarea:focus {
   .band-inner { align-items: flex-start; flex-direction: column; }
   .page-hero { padding-top: 54px; }
   .section { padding: 64px 0; }
+}
+
+/* Accessibility ------------------------------------------------------------ */
+
+/* `smooth` scrolling can trigger nausea for people with vestibular disorders,
+   and WCAG 2.3.3 asks that motion from interaction be disableable. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The gradient headline paints text through the background, which leaves the
+   text invisible if background-clip is unsupported or overridden (Windows High
+   Contrast, some older engines). Fall back to a solid AA-safe colour. */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .accent { background: none; color: var(--accent-text); }
+}
+
+@media (forced-colors: active) {
+  .accent { background: none; color: CanvasText; forced-color-adjust: none; }
+}
+
+/* A visible error needs a non-colour cue as well, so the message does not rely
+   on colour alone (WCAG 1.4.1). */
+input[aria-invalid="true"], textarea[aria-invalid="true"] {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(179, 79, 12, 0.14);
 }
