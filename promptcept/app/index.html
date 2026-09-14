@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PromptCept – AI Prompt Builder</title>
+  <meta name="description" content="Free web version of PromptCept. Turn a rough idea into a clear, structured prompt for ChatGPT, Claude, Gemini, or Grok. Runs entirely in your browser — no account, no server, nothing uploaded." />
+  <link rel="canonical" href="https://sandboxdigitallabs.com/promptcept/app/" />
+  <meta name="theme-color" content="#0f0f13" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="PromptCept" />
+  <meta property="og:title" content="PromptCept – AI Prompt Builder" />
+  <meta property="og:description" content="Turn a rough idea into a clear, structured prompt. Runs entirely in your browser; nothing is uploaded." />
+  <meta property="og:url" content="https://sandboxdigitallabs.com/promptcept/app/" />
+  <meta property="og:image" content="https://sandboxdigitallabs.com/assets/promptcept-feature.png" />
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+  <div id="app">
+  <div id="app-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ── Top bar ── -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">✦</div>
+      <h1>PromptCept</h1>
+    </div>
+    <div class="topbar-actions">
+      <button class="settings-btn" id="settings-btn" data-click="goTo" data-arg="screen-settings" aria-label="Settings">⚙︎</button>
+      <button class="back-btn" id="back-btn" data-click="goBack">← Back</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Home
+  ════════════════════════════════════ -->
+    <main id="screen-home" class="screen active" aria-labelledby="home-title">
+    <div class="hero">
+      <div class="hero-emoji">✨</div>
+      <h2 id="home-title" tabindex="-1">Welcome!<br>How can I help you?</h2>
+      <p>From concept to prompt.</p>
+    </div>
+
+    <div class="sticky-cta mt-4">
+      <button class="btn btn-primary" data-click="startNewPrompt">＋ &nbsp;Add New Prompt</button>
+    </div>
+
+    <div class="info-card quick-start">
+      <h3>Or start quickly with your idea</h3>
+      <label class="sr-only" for="quick-task">Prompt idea</label>
+      <textarea id="quick-task" maxlength="1000" placeholder="What would you like an AI to help you do?" data-input="updateQuickStart"></textarea>
+      <div class="quick-start-option">
+        <label class="quick-start-label" for="quick-ai">AI assistant <span>(optional)</span></label>
+        <select id="quick-ai" aria-label="Quick-start AI assistant">
+          <option value="">Not sure — decide later</option>
+          <option value="chatgpt">ChatGPT</option>
+          <option value="claude">Claude</option>
+          <option value="gemini">Gemini</option>
+          <option value="grok">Grok</option>
+        </select>
+      </div>
+      <button class="btn btn-secondary" id="quick-start-btn" data-click="startQuickPrompt" disabled>Create Prompt →</button>
+    </div>
+
+    <div class="section-label">Saved Prompts</div>
+    <label class="sr-only" for="prompt-search">Search saved prompts</label>
+    <input class="prompt-search" type="search" id="prompt-search" placeholder="Search saved prompts" data-input="renderList" />
+    <div class="prompt-list" id="prompt-list">
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        No saved prompts yet.<br>Your first prompt will appear here.
+      </div>
+    </div>
+  </main>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Settings & Privacy
+  ════════════════════════════════════ -->
+  <div id="screen-settings" class="screen">
+    <div class="step-eyebrow mt-8">Settings</div>
+    <div class="step-title" tabindex="-1">Privacy & your data</div>
+    <div class="step-sub">PromptCept is designed to work without an account.</div>
+
+    <div class="info-card">
+      <h3>🔒 Your prompts stay private</h3>
+      <p>Your prompt names, task descriptions, and generated prompts are stored only on this device. PromptCept does not collect, track, or sell your personal information.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>✨ On-device generation</h3>
+      <p>Prompts are assembled locally from built-in templates. Your content is not sent to OpenAI, Anthropic, Google, xAI, or Sandbox Digital Labs.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>Privacy Policy</h3>
+      <p><a href="https://sandboxdigitallabs.com/promptcept/privacy/" target="_blank" rel="noopener noreferrer">View the full public privacy policy</a></p>
+      <ul>
+        <li>No account or sign-in is required.</li>
+        <li>No analytics, advertising, or tracking SDKs are included.</li>
+        <li>PromptCept does not transmit your personal data. Content leaves only when you intentionally copy or open it in a third-party AI service.</li>
+        <li>Deleting the app removes its locally stored data.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>Terms of Use</h3>
+      <p>PromptCept provides prompt-writing assistance as-is. Review generated prompts before using them. You remain responsible for the content you submit to third-party AI services and for following those services' terms.</p>
+      <p><a href="https://sandboxdigitallabs.com/promptcept/terms/" target="_blank" rel="noopener noreferrer">View the full Terms of Use</a> · <a href="https://sandboxdigitallabs.com/promptcept/support/" target="_blank" rel="noopener noreferrer">Get support</a></p>
+    </div>
+
+    <div class="info-card">
+      <h3>Enjoying PromptCept?</h3>
+      <p>Ratings are how other people find the app. It takes a moment and helps a great deal.</p>
+      <button class="btn btn-secondary" data-click="rateApp">Rate PromptCept</button>
+    </div>
+
+    <div class="info-card">
+      <h3>Backup & transfer</h3>
+      <p>Export your prompt library as a JSON backup or restore a PromptCept backup on this device.</p>
+      <button class="btn btn-secondary" data-click="exportPrompts">Export Prompts</button>
+      <label class="btn btn-secondary" for="prompt-import">Import Prompts</label>
+      <input class="sr-only" type="file" id="prompt-import" accept="application/json,.json" aria-label="Import prompts from JSON" data-change="importPrompts" />
+    </div>
+
+    <button class="btn danger-btn" data-click="deleteAllData">Delete All Saved Prompts</button>
+    <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Done</button>
+    <div class="version-label">PromptCept – AI Prompt Builder · Version 1.1</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Step 1 — Name + AI + Category
+  ════════════════════════════════════ -->
+  <div id="screen-step1" class="screen">
+    <div class="step-progress">
+      <div class="step-pip done"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+    </div>
+
+    <div class="step-eyebrow">Step 1 of 4</div>
+    <div class="step-title" tabindex="-1">Set up your prompt</div>
+    <div class="step-sub">Give it a name, choose your AI, and pick a category.</div>
+
+    <!-- Name -->
+    <label class="section-label" for="prompt-name">Prompt name</label>
+    <input type="text" id="prompt-name" placeholder="e.g. Blog Post Writer" maxlength="60"
+      data-input="updateStep1" />
+
+    <!-- AI Picker -->
+    <div class="section-label mt-20">Choose an AI assistant <span class="optional-tag">(optional)</span></div>
+    <div class="step-sub-note">Not sure yet? Skip this — you can copy your prompt and paste it into any AI, and pick a favorite later.</div>
+    <div class="ai-picker">
+      <button type="button" class="ai-chip" id="chip-chatgpt" data-click="pickAI" data-arg="chatgpt" aria-pressed="false">
+        <div class="ai-chip-icon">🤖</div>
+        <div class="ai-chip-name">ChatGPT</div>
+        <div class="ai-chip-sub">OpenAI</div>
+      </button>
+      <button type="button" class="ai-chip" id="chip-claude" data-click="pickAI" data-arg="claude" aria-pressed="false">
+        <div class="ai-chip-icon">🧠</div>
+        <div class="ai-chip-name">Claude</div>
+        <div class="ai-chip-sub">Anthropic</div>
+      </button>
+      <button type="button" class="ai-chip" id="chip-gemini" data-click="pickAI" data-arg="gemini" aria-pressed="false">
+        <div class="ai-chip-icon">💎</div>
+        <div class="ai-chip-name">Gemini</div>
+        <div class="ai-chip-sub">Google</div>
+      </button>
+      <button type="button" class="ai-chip" id="chip-grok" data-click="pickAI" data-arg="grok" aria-pressed="false">
+        <div class="ai-chip-icon">⚡</div>
+        <div class="ai-chip-name">Grok</div>
+        <div class="ai-chip-sub">xAI</div>
+      </button>
+      <button type="button" class="ai-chip ai-chip-none" id="chip-none" data-click="pickAI" data-arg="" aria-pressed="false">
+        <div class="ai-chip-icon">🤔</div>
+        <div class="ai-chip-name">Decide later</div>
+        <div class="ai-chip-sub">Not sure yet</div>
+      </button>
+    </div>
+
+    <!-- Category -->
+    <div class="section-label">Category</div>
+    <div class="cat-grid">
+      <button type="button" class="cat-card" id="cat-writing" data-click="pickCat" data-arg="writing" aria-pressed="false">
+        <div class="cat-icon">✍️</div>
+        <div class="cat-name">Writing & Editing</div>
+        <div class="cat-desc">Emails, rewrites, articles</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-coding" data-click="pickCat" data-arg="coding" aria-pressed="false">
+        <div class="cat-icon">💻</div>
+        <div class="cat-name">Coding & Tech</div>
+        <div class="cat-desc">Code, debugging, explanations</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-business" data-click="pickCat" data-arg="business" aria-pressed="false">
+        <div class="cat-icon">💼</div>
+        <div class="cat-name">Work & Business</div>
+        <div class="cat-desc">Meetings, reports, marketing</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-creative" data-click="pickCat" data-arg="creative" aria-pressed="false">
+        <div class="cat-icon">🎨</div>
+        <div class="cat-name">Creative Ideas</div>
+        <div class="cat-desc">Ideas, stories, scripts</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-analysis" data-click="pickCat" data-arg="analysis" aria-pressed="false">
+        <div class="cat-icon">📊</div>
+        <div class="cat-name">Research & Analysis</div>
+        <div class="cat-desc">Research, summaries, decisions</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-learning" data-click="pickCat" data-arg="learning" aria-pressed="false">
+        <div class="cat-icon">📚</div>
+        <div class="cat-name">Learning</div>
+        <div class="cat-desc">Explain, teach, guide</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-planning" data-click="pickCat" data-arg="planning" aria-pressed="false">
+        <div class="cat-icon">🗂️</div>
+        <div class="cat-name">Planning & Productivity</div>
+        <div class="cat-desc">Projects, schedules, goals</div>
+      </button>
+      <button type="button" class="cat-card" id="cat-images" data-click="pickCat" data-arg="images" aria-pressed="false">
+        <div class="cat-icon">🖼️</div>
+        <div class="cat-name">Images</div>
+        <div class="cat-desc">AI image prompts</div>
+      </button>
+
+    </div>
+
+    <div class="sticky-cta">
+      <button class="btn btn-primary" id="btn-s1-next" data-click="goTo" data-arg="screen-step1b" disabled>
+        Continue →
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Step 1b — Subcategory
+  ════════════════════════════════════ -->
+  <div id="screen-step1b" class="screen">
+    <div class="step-progress">
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+    </div>
+
+    <div class="step-eyebrow">Step 2 of 4</div>
+    <div class="step-title" id="subcat-title" tabindex="-1">Choose a type</div>
+    <div class="step-sub" id="subcat-sub">Pick the specific type that best matches what you need.</div>
+
+    <div class="cat-grid" id="subcat-grid"></div>
+
+    <div class="sticky-cta">
+      <button class="btn btn-primary" id="btn-s1b-next" data-click="goTo" data-arg="screen-step2" disabled>
+        Continue →
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Step 2 — Describe task
+  ════════════════════════════════════ -->
+  <div id="screen-step2" class="screen">
+    <div class="step-progress">
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip"></div>
+    </div>
+
+    <div class="step-eyebrow">Step 3 of 4</div>
+    <div class="step-title" tabindex="-1">What would you like the AI to do?</div>
+    <div class="step-sub" id="s2-sub">Describe your task in your own words. More detail helps PromptCept build a better prompt.</div>
+
+    <label class="sr-only" for="prompt-task">Describe what you want the AI to do</label>
+    <textarea id="prompt-task"
+      placeholder="Describe what you want the AI to help you with…"
+      data-input="updateStep2" maxlength="1000"></textarea>
+    <div class="char-count"><span id="char-count">0</span>/1000</div>
+
+    <div class="sticky-cta mt-16">
+      <button class="btn btn-primary" id="btn-generate" data-click="prepareConfirmation" disabled>
+        Review Request →
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Step 4 — Review and clarify
+  ════════════════════════════════════ -->
+  <div id="screen-confirm" class="screen">
+    <div class="step-progress">
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+    </div>
+
+    <div class="step-eyebrow">Step 4 of 4</div>
+    <div class="step-title" tabindex="-1">Review your request</div>
+    <div class="step-sub">Confirm that PromptCept understood you correctly. Add any missing details before generating your prompt.</div>
+
+    <div class="review-card">
+      <div class="review-row"><div class="review-label">Prompt name</div><div class="review-value" id="confirm-name"></div></div>
+      <div class="review-row"><div class="review-label">AI assistant</div><div class="review-value" id="confirm-ai"></div></div>
+      <div class="review-row"><div class="review-label">Category</div><div class="review-value" id="confirm-category"></div></div>
+      <div class="review-row"><div class="review-label">Type</div><div class="review-value" id="confirm-type"></div></div>
+      <div class="review-row"><div class="review-label">Your request</div><div class="review-value" id="confirm-request"></div></div>
+    </div>
+
+    <label class="section-label" for="prompt-clarification">Optional details or corrections</label>
+    <textarea id="prompt-clarification" maxlength="600"
+      placeholder="For example: audience, tone, length, output format, must include, or must avoid…"></textarea>
+
+    <button type="button" class="btn btn-secondary" data-click="goTo" data-arg="screen-step2">Edit Request</button>
+    <div class="sticky-cta mt-8">
+      <button type="button" class="btn btn-primary" id="btn-confirm-generate" data-click="generate">✦ &nbsp;Confirm &amp; Generate</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Loading
+  ════════════════════════════════════ -->
+  <div id="screen-loading" class="screen" role="status" aria-live="polite">
+    <div class="loader-wrap">
+      <div class="spinner"></div>
+      <div>Crafting your prompt…</div>
+      <div class="loader-sub" id="loader-sub">Optimizing for your AI…</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Result
+  ════════════════════════════════════ -->
+  <div id="screen-result" class="screen">
+    <div class="step-eyebrow mt-8">Your prompt is ready ✓</div>
+    <div class="step-title" id="result-title">—</div>
+
+    <div class="result-ai-badge" id="result-ai-badge">—</div>
+
+    <div class="result-prompt-wrap">
+      <label class="sr-only" for="result-prompt">Generated prompt</label>
+      <textarea class="result-prompt" id="result-prompt" data-input="saveResultEdit"></textarea>
+    </div>
+    <div class="edit-hint">✏️ Tap to edit before copying</div>
+
+    <div class="action-row">
+      <button class="btn copy-btn" id="copy-btn" data-click="copyPrompt">
+        <span id="copy-icon">⎘</span> <span id="copy-label">Copy</span>
+      </button>
+      <button class="btn regen-btn" data-click="regenerate">
+        ↺ &nbsp;Regenerate
+      </button>
+    </div>
+
+    <button class="btn btn-primary" id="open-ai-btn" data-click="copyAndOpenSelectedAI">
+      ↗ &nbsp;<span id="open-ai-label">Copy &amp; Open AI</span>
+    </button>
+    <div class="edit-hint mt-10" id="open-ai-hint">Your prompt will be copied. Paste it into the AI, then send.</div>
+    <button class="btn btn-secondary" data-click="startNewPrompt">＋ &nbsp;New Prompt</button>
+    <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Home</button>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: View saved prompt
+  ════════════════════════════════════ -->
+  <div id="screen-view" class="screen">
+    <div class="view-header">
+      <div class="view-badge">Saved Prompt</div>
+      <div class="view-title" id="view-title">—</div>
+      <div class="view-goal"  id="view-goal">—</div>
+    </div>
+    <div class="result-ai-badge" id="view-ai-badge">—</div>
+    <div class="divider"></div>
+
+    <div class="result-prompt-wrap">
+      <label class="sr-only" for="view-prompt">Saved prompt</label>
+      <textarea class="result-prompt" id="view-prompt" data-input="saveViewedPromptEdit"></textarea>
+    </div>
+    <div class="edit-hint">✏️ Tap to edit before copying</div>
+
+    <div class="action-row">
+      <button class="btn copy-btn" id="view-copy-btn" data-click="viewCopy">
+        <span id="view-copy-icon">⎘</span> <span id="view-copy-label">Copy</span>
+      </button>
+      <button class="btn regen-btn" id="favorite-btn" data-click="toggleFavorite">☆ Add to Favorites</button>
+    </div>
+    <button class="btn btn-secondary mt-0" data-click="duplicateActivePrompt">⧉ &nbsp;Duplicate Prompt</button>
+    <button class="btn btn-primary" data-click="startNewPrompt">＋ &nbsp;New Prompt</button>
+    <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Home</button>
+  </div>
+
+</div><!-- /app -->
+
+<script src="js/app.js" defer></script>
+<script src="sw-register.js" defer></script>
+</body>
+</html>
