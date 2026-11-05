@@ -75,7 +75,9 @@ test('Peek QR page and its privacy policy are public, honest, and reachable', ()
   assert.match(privacy, /anonymous ID/);
   assert.match(privacy, /No advertising/);
   assert.match(privacy, /contact@sandboxdigitallabs\.com/);
-  assert.match(read(pages.home), /href="\/peek-qr\/"/);
+  const home = read(pages.home);
+  assert.match(home, /<h2>Peek QR<\/h2>/, 'homepage products must list Peek QR');
+  assert.match(home, /href="\/peek-qr\/"/);
   assert.match(read('sitemap.xml'), /peek-qr\/privacy\//);
 });
 
