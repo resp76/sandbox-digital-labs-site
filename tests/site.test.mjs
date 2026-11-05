@@ -13,6 +13,8 @@ const pages = {
   terms: 'promptcept/terms/index.html',
   siteTerms: 'terms/index.html',
   accessibility: 'accessibility/index.html',
+  peekQr: 'peek-qr/index.html',
+  peekQrPrivacy: 'peek-qr/privacy/index.html',
 };
 
 function assertPage(relative, canonicalPath) {
@@ -59,6 +61,22 @@ test('PromptCept product, support, privacy, and terms pages are public and compl
   assert.match(terms, /review generated prompts/i);
   assert.match(terms, /independent third-party services/i);
   assert.match(terms, /free and unlimited/i);
+});
+
+test('Peek QR page and its privacy policy are public, honest, and reachable', () => {
+  const product = assertPage(pages.peekQr, '/peek-qr/');
+  const privacy = assertPage(pages.peekQrPrivacy, '/peek-qr/privacy/');
+  assert.match(product, /href="\/peek-qr\/privacy\/"/);
+  assert.match(product, /id="support"/);
+  assert.match(product, /contact@sandboxdigitallabs\.com/);
+  // The check is heuristic; the page must never promise a site is safe.
+  assert.match(product, /can’t promise a website is safe/);
+  assert.match(privacy, /RevenueCat/);
+  assert.match(privacy, /anonymous ID/);
+  assert.match(privacy, /No advertising/);
+  assert.match(privacy, /contact@sandboxdigitallabs\.com/);
+  assert.match(read(pages.home), /href="\/peek-qr\/"/);
+  assert.match(read('sitemap.xml'), /peek-qr\/privacy\//);
 });
 
 test('company homepage links to PromptCept and uses one monitored contact address', () => {
