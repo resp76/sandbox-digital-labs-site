@@ -40,7 +40,7 @@ test('PromptCept product, support, privacy, and terms pages are public and compl
   assert.match(product, /href="\/privacy\/"/);
   assert.match(product, /href="\/promptcept\/terms\/"/);
 
-  assert.match(support, /PromptCept 1\.0/);
+  assert.match(support, /PromptCept support/);
   assert.match(support, /contact@sandboxdigitallabs\.com/);
   assert.match(support, /Delete All Saved Prompts/);
   assert.match(support, /export/i);

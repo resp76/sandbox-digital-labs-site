@@ -61,28 +61,24 @@ let activeSavedPromptId = null;
 
 const AI_META = {
   chatgpt: {
-    icon: '🤖',
     label: 'ChatGPT',
     color: 'chatgpt',
     appUrl: 'chatgpt://',
     url: 'https://chatgpt.com/',
   },
   claude: {
-    icon: '🧠',
     label: 'Claude',
     color: 'claude',
     appUrl: 'claude://',
     url: 'https://claude.ai/new',
   },
   gemini: {
-    icon: '💎',
     label: 'Gemini',
     color: 'gemini',
     appUrl: 'googlegemini://',
     url: 'https://gemini.google.com/app',
   },
   grok: {
-    icon: '⚡',
     label: 'Grok',
     color: 'grok',
     appUrl: 'grok://',
@@ -91,130 +87,143 @@ const AI_META = {
 };
 // Display-only metadata for prompts with no assistant chosen. Not part of
 // AI_META because it has no launch destination — it can't be opened.
-const NO_AI_META = { icon: '🧭', label: 'No assistant selected', color: 'none' };
+const NO_AI_META = { label: 'No assistant selected', color: 'none' };
 function getAiMeta(ai) {
   return AI_META[ai] || null;
 }
+// `icon` names a symbol in the SVG sprite at the top of index.html.
 const CAT_META = {
-  writing:  { icon: '✍️', label: 'Writing & Editing' },
-  coding:   { icon: '💻', label: 'Coding & Tech' },
-  business: { icon: '💼', label: 'Work & Business' },
-  creative: { icon: '🎨', label: 'Creative Ideas' },
-  analysis: { icon: '📊', label: 'Research & Analysis' },
-  learning: { icon: '📚', label: 'Learning' },
-  planning: { icon: '🗂️', label: 'Planning & Productivity' },
-  images:   { icon: '🖼️', label: 'Images' },
+  writing:  { icon: 'pencil', label: 'Writing & Editing' },
+  coding:   { icon: 'code', label: 'Coding & Tech' },
+  business: { icon: 'briefcase', label: 'Work & Business' },
+  creative: { icon: 'bulb', label: 'Creative Ideas' },
+  analysis: { icon: 'chart', label: 'Research & Analysis' },
+  learning: { icon: 'book', label: 'Learning' },
+  planning: { icon: 'checklist', label: 'Planning & Productivity' },
+  images:   { icon: 'image', label: 'Images' },
   // Kept for prompts saved by pre-1.0 builds.
-  freestyle: { icon: '🔓', label: 'Freestyle' },
+  freestyle: { icon: 'star4', label: 'Freestyle' },
 };
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function icon(name, className = 'icon') {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', className);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS(SVG_NS, 'use');
+  use.setAttribute('href', `#i-${name}`);
+  svg.append(use);
+  return svg;
+}
 
 const SUBCAT_DATA = {
   writing: [
-    { id: 'email',   icon: '📧', name: 'Email',                 desc: 'Professional or personal email' },
-    { id: 'rewrite', icon: '✨', name: 'Rewrite & Improve',     desc: 'Improve clarity, tone, and flow' },
-    { id: 'social',  icon: '📱', name: 'Social Media',          desc: 'Posts, captions, and threads' },
-    { id: 'blog',    icon: '📝', name: 'Blog / Article',        desc: 'Articles, guides, and posts' },
-    { id: 'newsletter', icon: '📰', name: 'Newsletter',         desc: 'Updates, editions, and campaigns' },
-    { id: 'storypoetry', icon: '📖', name: 'Story / Poetry',    desc: 'Stories, poems, and creative prose' },
-    { id: 'resume',  icon: '📄', name: 'Resume',                desc: 'ATS-friendly career documents' },
-    { id: 'coverletter', icon: '✉️', name: 'Cover Letter',      desc: 'Tailored job applications' },
-    { id: 'product', icon: '🛍️', name: 'Product Description',   desc: 'Listings and sales copy' },
-    { id: 'custom',  icon: '🔓', name: 'Freestyle',             desc: 'Any other writing task' },
+    { id: 'email',   name: 'Email',                 desc: 'Professional or personal email' },
+    { id: 'rewrite', name: 'Rewrite & Improve',     desc: 'Improve clarity, tone, and flow' },
+    { id: 'social',  name: 'Social Media',          desc: 'Posts, captions, and threads' },
+    { id: 'blog',    name: 'Blog / Article',        desc: 'Articles, guides, and posts' },
+    { id: 'newsletter', name: 'Newsletter',         desc: 'Updates, editions, and campaigns' },
+    { id: 'storypoetry', name: 'Story / Poetry',    desc: 'Stories, poems, and creative prose' },
+    { id: 'resume',  name: 'Resume',                desc: 'ATS-friendly career documents' },
+    { id: 'coverletter', name: 'Cover Letter',      desc: 'Tailored job applications' },
+    { id: 'product', name: 'Product Description',   desc: 'Listings and sales copy' },
+    { id: 'custom',  name: 'Freestyle',             desc: 'Any other writing task' },
   ],
   coding: [
-    { id: 'newcode',     icon: '⌨️', name: 'Write Code',        desc: 'Build something from scratch' },
-    { id: 'debug',       icon: '🐛', name: 'Debug / Fix',       desc: 'Find and fix errors' },
-    { id: 'explaincode', icon: '🧩', name: 'Explain Code',      desc: 'Understand how code works' },
-    { id: 'review',      icon: '🔍', name: 'Code Review',       desc: 'Improve quality and security' },
-    { id: 'api',         icon: '🔗', name: 'API / Integration', desc: 'Connect services together' },
-    { id: 'database',    icon: '🗄️', name: 'Database / SQL',    desc: 'Queries, schemas, and data' },
-    { id: 'testing',     icon: '🧪', name: 'Tests / Test Cases', desc: 'Reliable automated testing' },
-    { id: 'architecture', icon: '🏗️', name: 'System Design',    desc: 'Architecture and trade-offs' },
-    { id: 'website',     icon: '🌐', name: 'Website Design',    desc: 'Plan, design, and build a site' },
-    { id: 'docs',        icon: '📚', name: 'Documentation',      desc: 'Technical docs and guides' },
-    { id: 'custom',      icon: '🔓', name: 'Freestyle',         desc: 'Any other technical task' },
+    { id: 'newcode',     name: 'Write Code',        desc: 'Build something from scratch' },
+    { id: 'debug',       name: 'Debug / Fix',       desc: 'Find and fix errors' },
+    { id: 'explaincode', name: 'Explain Code',      desc: 'Understand how code works' },
+    { id: 'review',      name: 'Code Review',       desc: 'Improve quality and security' },
+    { id: 'api',         name: 'API / Integration', desc: 'Connect services together' },
+    { id: 'database',    name: 'Database / SQL',    desc: 'Queries, schemas, and data' },
+    { id: 'testing',     name: 'Tests / Test Cases', desc: 'Reliable automated testing' },
+    { id: 'architecture', name: 'System Design',    desc: 'Architecture and trade-offs' },
+    { id: 'website',     name: 'Website Design',    desc: 'Plan, design, and build a site' },
+    { id: 'docs',        name: 'Documentation',      desc: 'Technical docs and guides' },
+    { id: 'custom',      name: 'Freestyle',         desc: 'Any other technical task' },
   ],
   business: [
-    { id: 'meeting',      icon: '🗒️', name: 'Meeting Notes',     desc: 'Summaries and action items' },
-    { id: 'presentation', icon: '📽️', name: 'Presentation',      desc: 'Slides, outlines, and talking points' },
-    { id: 'report',       icon: '📑', name: 'Report',            desc: 'Professional reports and updates' },
-    { id: 'strategy',     icon: '♟️', name: 'Business Strategy', desc: 'Priorities, growth, and decisions' },
-    { id: 'marketing',    icon: '📣', name: 'Marketing Copy',    desc: 'Campaigns, ads, and promotions' },
-    { id: 'adcopy',       icon: '📢', name: 'Ad Copy',           desc: 'Focused ads and calls-to-action' },
-    { id: 'competitor',   icon: '🔭', name: 'Competitor Analysis', desc: 'Positioning and market gaps' },
-    { id: 'budget',       icon: '💰', name: 'Budget / Financial Plan', desc: 'Costs, forecasts, and buffers' },
-    { id: 'support',      icon: '💬', name: 'Customer Support Reply', desc: 'Helpful customer communication' },
-    { id: 'negotiation',  icon: '🤝', name: 'Negotiation Prep',   desc: 'Salary, vendor, and deal talks' },
-    { id: 'custom',       icon: '🔓', name: 'Freestyle',         desc: 'Any other work task' },
+    { id: 'meeting',      name: 'Meeting Notes',     desc: 'Summaries and action items' },
+    { id: 'presentation', name: 'Presentation',      desc: 'Slides, outlines, and talking points' },
+    { id: 'report',       name: 'Report',            desc: 'Professional reports and updates' },
+    { id: 'strategy',     name: 'Business Strategy', desc: 'Priorities, growth, and decisions' },
+    { id: 'marketing',    name: 'Marketing Copy',    desc: 'Campaigns, ads, and promotions' },
+    { id: 'adcopy',       name: 'Ad Copy',           desc: 'Focused ads and calls-to-action' },
+    { id: 'competitor',   name: 'Competitor Analysis', desc: 'Positioning and market gaps' },
+    { id: 'budget',       name: 'Budget / Financial Plan', desc: 'Costs, forecasts, and buffers' },
+    { id: 'support',      name: 'Customer Support Reply', desc: 'Helpful customer communication' },
+    { id: 'negotiation',  name: 'Negotiation Prep',   desc: 'Salary, vendor, and deal talks' },
+    { id: 'custom',       name: 'Freestyle',         desc: 'Any other work task' },
   ],
   creative: [
-    { id: 'brainstorm', icon: '💡', name: 'Brainstorm Ideas', desc: 'Generate and develop ideas' },
-    { id: 'story',      icon: '✨', name: 'Story / Fiction',   desc: 'Stories, scenes, and characters' },
-    { id: 'script',     icon: '🎬', name: 'Video Script',      desc: 'Videos, scenes, and dialogue' },
-    { id: 'podcast',    icon: '🎙️', name: 'Podcast Script',    desc: 'Episodes, segments, and interviews' },
-    { id: 'naming',     icon: '🏷️', name: 'Names & Slogans',   desc: 'Names, taglines, and titles' },
-    { id: 'design',     icon: '🖌️', name: 'Design Concept',    desc: 'Visual direction and concepts' },
-    { id: 'lyrics',     icon: '🎵', name: 'Song / Lyrics',     desc: 'Lyrics, themes, and song ideas' },
-    { id: 'worldbuild', icon: '🌍', name: 'Worldbuilding',     desc: 'Settings, cultures, and lore' },
-    { id: 'custom',     icon: '🔓', name: 'Freestyle',         desc: 'Any other creative task' },
+    { id: 'brainstorm', name: 'Brainstorm Ideas', desc: 'Generate and develop ideas' },
+    { id: 'story',      name: 'Story / Fiction',   desc: 'Stories, scenes, and characters' },
+    { id: 'script',     name: 'Video Script',      desc: 'Videos, scenes, and dialogue' },
+    { id: 'podcast',    name: 'Podcast Script',    desc: 'Episodes, segments, and interviews' },
+    { id: 'naming',     name: 'Names & Slogans',   desc: 'Names, taglines, and titles' },
+    { id: 'design',     name: 'Design Concept',    desc: 'Visual direction and concepts' },
+    { id: 'lyrics',     name: 'Song / Lyrics',     desc: 'Lyrics, themes, and song ideas' },
+    { id: 'worldbuild', name: 'Worldbuilding',     desc: 'Settings, cultures, and lore' },
+    { id: 'custom',     name: 'Freestyle',         desc: 'Any other creative task' },
   ],
   analysis: [
-    { id: 'summarize', icon: '📋', name: 'Summarize',        desc: 'Turn content into key points' },
-    { id: 'research',  icon: '🔬', name: 'Research Topic',   desc: 'Explore a subject in depth' },
-    { id: 'compare',   icon: '⚖️', name: 'Compare Options',  desc: 'Compare choices and trade-offs' },
-    { id: 'data',      icon: '📈', name: 'Analyze Data',     desc: 'Interpret numbers and trends' },
-    { id: 'insights',  icon: '💡', name: 'Extract Insights', desc: 'Find themes and key findings' },
-    { id: 'decision',  icon: '🧭', name: 'Decision Support', desc: 'Evaluate options and recommend' },
-    { id: 'swot',      icon: '⊞', name: 'SWOT Analysis',     desc: 'Strengths, weaknesses, opportunities, threats' },
-    { id: 'factcheck', icon: '✅', name: 'Fact Check',        desc: 'Verify claims and source quality' },
-    { id: 'custom',    icon: '🔓', name: 'Freestyle',        desc: 'Any other analysis task' },
+    { id: 'summarize', name: 'Summarize',        desc: 'Turn content into key points' },
+    { id: 'research',  name: 'Research Topic',   desc: 'Explore a subject in depth' },
+    { id: 'compare',   name: 'Compare Options',  desc: 'Compare choices and trade-offs' },
+    { id: 'data',      name: 'Analyze Data',     desc: 'Interpret numbers and trends' },
+    { id: 'insights',  name: 'Extract Insights', desc: 'Find themes and key findings' },
+    { id: 'decision',  name: 'Decision Support', desc: 'Evaluate options and recommend' },
+    { id: 'swot',      name: 'SWOT Analysis',     desc: 'Strengths, weaknesses, opportunities, threats' },
+    { id: 'factcheck', name: 'Fact Check',        desc: 'Verify claims and source quality' },
+    { id: 'custom',    name: 'Freestyle',        desc: 'Any other analysis task' },
   ],
   learning: [
-    { id: 'explain',   icon: '🧩', name: 'Explain a Topic',    desc: 'Understand something clearly' },
-    { id: 'tutor',     icon: '🎓', name: 'Tutor Me',           desc: 'Learn through guided questions' },
-    { id: 'studyplan', icon: '🗓️', name: 'Study Plan',         desc: 'Create a learning schedule' },
-    { id: 'quiz',      icon: '❓', name: 'Quiz Me',            desc: 'Test your knowledge' },
-    { id: 'practice',  icon: '✏️', name: 'Practice Exercises', desc: 'Build skills through practice' },
-    { id: 'simplify',  icon: '💡', name: 'Simplify a Topic',   desc: 'Make complex ideas accessible' },
-    { id: 'translate', icon: '🌐', name: 'Translate',          desc: 'Translate text with nuance' },
-    { id: 'define',    icon: '📖', name: 'Define a Term',      desc: 'Meaning, context, and examples' },
-    { id: 'languagepractice', icon: '🗣️', name: 'Language Practice', desc: 'Conversation and corrections' },
-    { id: 'interview', icon: '🎤', name: 'Interview Prep',      desc: 'Practice questions and answers' },
-    { id: 'lessonplan',icon: '🍎', name: 'Lesson Plan',          desc: 'Teach a class or session' },
-    { id: 'custom',    icon: '🔓', name: 'Freestyle',          desc: 'Any other learning task' },
+    { id: 'explain',   name: 'Explain a Topic',    desc: 'Understand something clearly' },
+    { id: 'tutor',     name: 'Tutor Me',           desc: 'Learn through guided questions' },
+    { id: 'studyplan', name: 'Study Plan',         desc: 'Create a learning schedule' },
+    { id: 'quiz',      name: 'Quiz Me',            desc: 'Test your knowledge' },
+    { id: 'practice',  name: 'Practice Exercises', desc: 'Build skills through practice' },
+    { id: 'simplify',  name: 'Simplify a Topic',   desc: 'Make complex ideas accessible' },
+    { id: 'translate', name: 'Translate',          desc: 'Translate text with nuance' },
+    { id: 'define',    name: 'Define a Term',      desc: 'Meaning, context, and examples' },
+    { id: 'languagepractice', name: 'Language Practice', desc: 'Conversation and corrections' },
+    { id: 'interview', name: 'Interview Prep',      desc: 'Practice questions and answers' },
+    { id: 'lessonplan',name: 'Lesson Plan',          desc: 'Teach a class or session' },
+    { id: 'custom',    name: 'Freestyle',          desc: 'Any other learning task' },
   ],
   planning: [
-    { id: 'roadmap',   icon: '🗺️', name: 'Project Plan',      desc: 'Tasks, milestones, and timeline' },
-    { id: 'checklist', icon: '✅', name: 'To-do / Checklist', desc: 'Organize tasks and next steps' },
-    { id: 'daily',     icon: '📅', name: 'Schedule',          desc: 'Plan a day, week, or routine' },
-    { id: 'goals',     icon: '🎯', name: 'Goal Plan',          desc: 'Set measurable goals and milestones' },
-    { id: 'habits',    icon: '🔁', name: 'Habit Builder',      desc: 'Build sustainable routines' },
-    { id: 'event',     icon: '🎪', name: 'Event Plan',        desc: 'Plan logistics and timing' },
-    { id: 'travel',    icon: '✈️', name: 'Travel Plan',       desc: 'Itineraries, activities, and tips' },
-    { id: 'budget',    icon: '💰', name: 'Budget Plan',       desc: 'Income, costs, and contingencies' },
-    { id: 'workout',   icon: '🏋️', name: 'Workout Plan',        desc: 'Training and exercise routines' },
-    { id: 'custom',    icon: '🔓', name: 'Freestyle',         desc: 'Any other planning task' },
+    { id: 'roadmap',   name: 'Project Plan',      desc: 'Tasks, milestones, and timeline' },
+    { id: 'checklist', name: 'To-do / Checklist', desc: 'Organize tasks and next steps' },
+    { id: 'daily',     name: 'Schedule',          desc: 'Plan a day, week, or routine' },
+    { id: 'goals',     name: 'Goal Plan',          desc: 'Set measurable goals and milestones' },
+    { id: 'habits',    name: 'Habit Builder',      desc: 'Build sustainable routines' },
+    { id: 'event',     name: 'Event Plan',        desc: 'Plan logistics and timing' },
+    { id: 'travel',    name: 'Travel Plan',       desc: 'Itineraries, activities, and tips' },
+    { id: 'budget',    name: 'Budget Plan',       desc: 'Income, costs, and contingencies' },
+    { id: 'workout',   name: 'Workout Plan',        desc: 'Training and exercise routines' },
+    { id: 'custom',    name: 'Freestyle',         desc: 'Any other planning task' },
   ],
   images: [
-    { id: 'photoreal',    icon: '📷', name: 'Photorealistic',     desc: 'Lifelike photographic images' },
-    { id: 'digitalart',   icon: '🎨', name: 'Illustration / Art', desc: 'Illustrations and digital art' },
-    { id: 'logo',         icon: '✏️', name: 'Logo / Icon',        desc: 'Brand marks, icons, and badges' },
-    { id: 'character',    icon: '🧑', name: 'Character Design',   desc: 'People, avatars, and characters' },
-    { id: 'productimage', icon: '📦', name: 'Product Image',      desc: 'Product and advertising visuals' },
-    { id: 'scene',        icon: '🌄', name: 'Scene / Background', desc: 'Places, landscapes, and settings' },
-    { id: 'abstract',     icon: '🌀', name: 'Abstract Art',       desc: 'Concepts, emotion, and form' },
-    { id: 'uimockup',     icon: '📱', name: 'UI / App Mockup',    desc: 'Interface concepts and layouts' },
-    { id: 'infographic',  icon: '📊', name: 'Infographic',        desc: 'Visual information layouts' },
-    { id: 'custom',       icon: '🔓', name: 'Freestyle',          desc: 'Any other image idea' },
+    { id: 'photoreal',    name: 'Photorealistic',     desc: 'Lifelike photographic images' },
+    { id: 'digitalart',   name: 'Illustration / Art', desc: 'Illustrations and digital art' },
+    { id: 'logo',         name: 'Logo / Icon',        desc: 'Brand marks, icons, and badges' },
+    { id: 'character',    name: 'Character Design',   desc: 'People, avatars, and characters' },
+    { id: 'productimage', name: 'Product Image',      desc: 'Product and advertising visuals' },
+    { id: 'scene',        name: 'Scene / Background', desc: 'Places, landscapes, and settings' },
+    { id: 'abstract',     name: 'Abstract Art',       desc: 'Concepts, emotion, and form' },
+    { id: 'uimockup',     name: 'UI / App Mockup',    desc: 'Interface concepts and layouts' },
+    { id: 'infographic',  name: 'Infographic',        desc: 'Visual information layouts' },
+    { id: 'custom',       name: 'Freestyle',          desc: 'Any other image idea' },
   ],
   // Legacy data retained so prompts saved by older builds still display correctly.
   freestyle: [
-    { id: 'quickanswer', icon: '⚡', name: 'Quick Answer',      desc: 'Fast, direct response' },
-    { id: 'roleplay',    icon: '🎭', name: 'Roleplay',          desc: 'Character or persona-based' },
-    { id: 'debate',      icon: '⚖️', name: 'Debate Both Sides', desc: 'Argue multiple perspectives' },
-    { id: 'feedback',    icon: '💬', name: 'Give Feedback',     desc: 'Review and critique my work' },
-    { id: 'rewrite',     icon: '✍️', name: 'Rewrite & Improve', desc: 'Enhance existing content' },
-    { id: 'open',        icon: '🔓', name: 'Open Prompt',       desc: 'Fully custom, no constraints' },
+    { id: 'quickanswer', name: 'Quick Answer',      desc: 'Fast, direct response' },
+    { id: 'roleplay',    name: 'Roleplay',          desc: 'Character or persona-based' },
+    { id: 'debate',      name: 'Debate Both Sides', desc: 'Argue multiple perspectives' },
+    { id: 'feedback',    name: 'Give Feedback',     desc: 'Review and critique my work' },
+    { id: 'rewrite',     name: 'Rewrite & Improve', desc: 'Enhance existing content' },
+    { id: 'open',        name: 'Open Prompt',       desc: 'Fully custom, no constraints' },
   ],
 };
 
@@ -304,6 +313,7 @@ function startNewPrompt() {
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.querySelectorAll(`#${id} .result-prompt`).forEach(autoResizeTA);
   if (screenHistory[screenHistory.length - 1] !== id) screenHistory.push(id);
   updateBackBtn();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -361,13 +371,13 @@ function renderSubcats(cat) {
   const meta = CAT_META[cat];
   const subcats = SUBCAT_DATA[cat] || [];
 
-  document.getElementById('subcat-title').textContent = meta.icon + ' ' + meta.label + ' — Choose a type';
+  document.getElementById('subcat-title').textContent = 'Choose a type';
+  document.getElementById('subcat-sub').textContent = `${meta.label}: pick the specific type that best matches what you need.`;
   document.getElementById('btn-s1b-next').disabled = true;
 
   const grid = document.getElementById('subcat-grid');
   grid.innerHTML = subcats.map(s => `
     <button type="button" class="cat-card" id="subcat-${s.id}" data-click="pickSubcat" data-arg="${s.id}" aria-pressed="false">
-      <div class="cat-icon">${s.icon}</div>
       <div class="cat-name">${s.name}</div>
       <div class="cat-desc">${s.desc}</div>
     </button>`).join('');
@@ -492,8 +502,8 @@ function prepareConfirmation() {
   const ai = getAiMeta(state.ai);
   const category = CAT_META[state.category];
   document.getElementById('confirm-name').textContent = state.name;
-  document.getElementById('confirm-ai').textContent = ai ? `${ai.icon} ${ai.label}` : 'Not selected — decide later';
-  document.getElementById('confirm-category').textContent = `${category.icon} ${category.label}`;
+  document.getElementById('confirm-ai').textContent = ai ? ai.label : 'Not selected — decide later';
+  document.getElementById('confirm-category').textContent = category.label;
   document.getElementById('confirm-type').textContent = getSubcatLabel(state.category, state.subcategory) || 'Freestyle';
   document.getElementById('confirm-request').textContent = state.task;
   document.getElementById('prompt-clarification').value = state.clarification;
@@ -544,7 +554,7 @@ function showResult() {
   const m = getAiMeta(state.ai);
   const badge = document.getElementById('result-ai-badge');
   const badgeMeta = m || NO_AI_META;
-  badge.textContent = badgeMeta.icon + ' ' + badgeMeta.label;
+  badge.textContent = badgeMeta.label;
   badge.className = 'result-ai-badge ' + badgeMeta.color;
 
   const ta = document.getElementById('result-prompt');
@@ -712,25 +722,22 @@ function buildGeminiPrompt(name, role, category, task, subcatLabel, variation) {
   const catInstructions = getCatInstructions(category, state.subcategory);
   const variationInstructions = getVariationInstructions(variation);
   const typeNote = subcatLabel ? `**Type:** ${subcatLabel}\n\n` : '';
-  return `You are ${role}.
+  return `**Persona:** You are ${role}.
 
-## Prompt objective
-${name}
+**Task:** ${name}
 
-## Task
+**Context:**
 ${typeNote}${task}
 
-## What I need from you
+**How to respond:**
 ${catInstructions}
 ${variationInstructions ? `\n${variationInstructions}` : ''}
-- Analyze the task carefully before responding.
-- Be detailed, specific, and practical.
-- Organize your response with clear sections or steps.
-- If multiple approaches are valid, briefly describe trade-offs.
-- If a missing detail blocks a useful answer, ask one focused question; otherwise state reasonable assumptions and continue.
-- Keep a professional yet approachable tone throughout.
+- Work through the task methodically and plan your approach before writing the final answer.
+- Ground every claim in the context above. If a missing detail blocks a useful answer, ask one focused question; otherwise state reasonable assumptions and continue.
+- Be specific and complete, but don't pad — cut filler and repetition.
+- Match the length to the task; don't inflate a simple answer.
 
-Please begin.`;
+**Output format:** Clean markdown. Lead with the direct answer, then supporting detail under clear headings or numbered steps.`;
 }
 
 function getCatInstructions(category, subcatId) {
@@ -846,15 +853,19 @@ function copyPrompt() {
 function viewCopy() {
   doCopy(document.getElementById('view-prompt').value, 'view-copy-btn', 'view-copy-icon', 'view-copy-label');
 }
+function setCopyGlyph(iconId, name) {
+  const glyph = document.getElementById(iconId);
+  if (glyph) glyph.replaceChildren(icon(name));
+}
 function doCopy(text, btnId, iconId, labelId) {
   navigator.clipboard.writeText(text).then(() => {
     document.getElementById(btnId).classList.add('copied');
-    document.getElementById(iconId).textContent = '✓';
+    setCopyGlyph(iconId, 'check');
     document.getElementById(labelId).textContent = 'Copied!';
     announce('Prompt copied to clipboard.');
     setTimeout(() => resetCopy(btnId, iconId, labelId), 2500);
   }).catch(() => {
-    document.getElementById(iconId).textContent = '!';
+    setCopyGlyph(iconId, 'alert');
     document.getElementById(labelId).textContent = 'Copy failed';
     announce('Copy failed. Select the prompt text and copy it manually.');
     setTimeout(() => resetCopy(btnId, iconId, labelId), 2500);
@@ -863,8 +874,7 @@ function doCopy(text, btnId, iconId, labelId) {
 function resetCopy(btnId, iconId, labelId) {
   const btn = document.getElementById(btnId);
   if (btn) btn.classList.remove('copied');
-  const icon = document.getElementById(iconId);
-  if (icon) icon.textContent = '⎘';
+  setCopyGlyph(iconId, 'copy');
   const lbl = document.getElementById(labelId);
   if (lbl) lbl.textContent = 'Copy';
 }
@@ -1044,7 +1054,10 @@ function updateFavoriteButton() {
   const button = document.getElementById('favorite-btn');
   if (!button) return;
   const isFavorite = Boolean(prompt?.favorite);
-  button.textContent = isFavorite ? '★ Remove from Favorites' : '☆ Add to Favorites';
+  button.replaceChildren(
+    icon('star', isFavorite ? 'icon-fill' : 'icon'),
+    document.createTextNode(isFavorite ? 'Remove from Favorites' : 'Add to Favorites'),
+  );
 }
 
 function toggleFavorite() {
@@ -1168,12 +1181,12 @@ function toggleFavoriteById(id, event) {
   announce(prompt.favorite ? 'Added to favorites.' : 'Removed from favorites.');
 }
 
-function createEmptyState(icon, message) {
+function createEmptyState(iconName, message) {
   const empty = document.createElement('div');
   empty.className = 'empty-state';
   const iconElement = document.createElement('div');
   iconElement.className = 'empty-icon';
-  iconElement.textContent = icon;
+  iconElement.append(icon(iconName));
   empty.append(iconElement, document.createTextNode(message));
   return empty;
 }
@@ -1200,13 +1213,13 @@ function renderList() {
   if (savedPrompts.length === 0) searchInput.value = '';
   list.replaceChildren();
   if (savedPrompts.length === 0) {
-    list.append(createEmptyState('📝', 'No saved prompts yet. Your first prompt will appear here.'));
+    list.append(createEmptyState('note', 'No saved prompts yet. Your first prompt will appear here.'));
     return;
   }
 
   const visiblePrompts = getVisiblePrompts();
   if (visiblePrompts.length === 0) {
-    list.append(createEmptyState('🔎', 'No matching prompts.'));
+    list.append(createEmptyState('search', 'No matching prompts.'));
     return;
   }
 
@@ -1229,8 +1242,8 @@ function renderList() {
     const meta = document.createElement('div');
     meta.className = 'prompt-card-meta';
     const dot = document.createElement('div');
-    dot.className = `ai-dot ${ai.color}`;
-    dot.textContent = ai.icon;
+    dot.className = 'prompt-card-icon';
+    dot.append(icon(category.icon));
     const text = document.createElement('div');
     text.className = 'prompt-card-text';
     const name = document.createElement('div');
@@ -1238,7 +1251,7 @@ function renderList() {
     name.textContent = prompt.name;
     const subtitle = document.createElement('div');
     subtitle.className = 'prompt-card-sub';
-    subtitle.textContent = `${category.icon} ${category.label} · ${ai.label}`;
+    subtitle.textContent = `${category.label} · ${ai.label}`;
     text.append(name, subtitle);
     meta.append(dot, text);
 
@@ -1247,19 +1260,19 @@ function renderList() {
     const favorite = document.createElement('button');
     favorite.className = 'favorite-card-btn';
     favorite.type = 'button';
-    favorite.textContent = prompt.favorite ? '★' : '☆';
+    favorite.append(icon('star', prompt.favorite ? 'icon-fill' : 'icon'));
     favorite.setAttribute('aria-pressed', String(Boolean(prompt.favorite)));
     favorite.setAttribute('aria-label', `${prompt.favorite ? 'Remove' : 'Add'} ${prompt.name} ${prompt.favorite ? 'from' : 'to'} favorites`);
     favorite.addEventListener('click', event => toggleFavoriteById(prompt.id, event));
     const remove = document.createElement('button');
     remove.className = 'delete-btn';
     remove.type = 'button';
-    remove.textContent = '🗑';
+    remove.append(icon('trash'));
     remove.setAttribute('aria-label', `Delete ${prompt.name}`);
     remove.addEventListener('click', event => deletePromptById(prompt.id, event));
     const arrow = document.createElement('div');
-    arrow.className = 'prompt-card-arrow';
-    arrow.textContent = '›';
+    arrow.className = 'prompt-card-chevron';
+    arrow.append(icon('chev-right'));
     actions.append(favorite, remove, arrow);
     card.append(meta, actions);
     list.append(card);
@@ -1274,7 +1287,7 @@ function viewSavedById(id) {
   document.getElementById('view-title').textContent = p.name;
   document.getElementById('view-goal').textContent = p.task;
   const badge = document.getElementById('view-ai-badge');
-  badge.textContent = `${ai.icon} ${ai.label}`;
+  badge.textContent = ai.label;
   badge.className = `result-ai-badge ${ai.color}`;
   const ta = document.getElementById('view-prompt');
   ta.value = p.prompt;
@@ -1302,7 +1315,7 @@ function announce(message) {
 }
 function autoResizeTA(ta) {
   ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 340) + 'px';
+  ta.style.height = Math.min(ta.scrollHeight, 400) + 'px';
 }
 
 /* ── Init ── */

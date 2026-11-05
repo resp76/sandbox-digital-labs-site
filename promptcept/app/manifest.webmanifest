@@ -6,8 +6,8 @@
   "scope": "/promptcept/app/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f0f13",
-  "theme_color": "#0f0f13",
+  "background_color": "#0e0d17",
+  "theme_color": "#0e0d17",
   "categories": ["productivity", "utilities"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
   <title>PromptCept – AI Prompt Builder</title>
   <meta name="description" content="Free web version of PromptCept. Turn a rough idea into a clear, structured prompt for ChatGPT, Claude, Gemini, or Grok. Runs entirely in your browser — no account, no server, nothing uploaded." />
   <link rel="canonical" href="https://sandboxdigitallabs.com/promptcept/app/" />
-  <meta name="theme-color" content="#0f0f13" />
+  <meta name="theme-color" content="#0e0d17" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f4f3f9" media="(prefers-color-scheme: light)" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="icons/icon-180.png" />
@@ -19,33 +21,59 @@
   <link rel="stylesheet" href="styles/app.css" />
 </head>
 <body>
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-star4" viewBox="0 0 24 24"><path d="M12 2C12.6 7.4 16.6 11.4 22 12C16.6 12.6 12.6 16.6 12 22C11.4 16.6 7.4 12.6 2 12C7.4 11.4 11.4 7.4 12 2Z"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h9.8M18.2 6H20M4 12h2.8M11.2 12H20M4 18h10.8M19.2 18H20"/><circle cx="16" cy="6" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></symbol>
+    <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+    <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="8.5"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5zM14 3.5V8h4M8.5 12.5h7M8.5 16h5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+    <symbol id="i-device" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3.5V7M14 3.5V7M10 17v3.5M14 17v3.5M3.5 10H7M3.5 14H7M17 10h3.5M17 14h3.5"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19l-4 1zM14 7l3 3"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3.5 13h17"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8.2 4.5 4 4.5V18c4.2 0 6.5.5 8 2 1.5-1.5 3.8-2 8-2V4.5c-4.2 0-6.5.5-8 2zM12 6.5V20"/></symbol>
+    <symbol id="i-checklist" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1.3 1.3L7.5 5M4 12l1.3 1.3L7.5 11M4 18l1.3 1.3L7.5 17"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></symbol>
+  </svg>
+
   <div id="app">
   <div id="app-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- ── Top bar ── -->
   <div class="topbar">
-    <div class="topbar-left">
-      <div class="logo">✦</div>
+    <button class="back-btn" id="back-btn" data-click="goBack"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chev-left"/></svg>Back</button>
+    <div class="brand">
+      <div class="logo"><svg class="icon-fill" aria-hidden="true" focusable="false"><use href="#i-star4"/></svg></div>
       <h1>PromptCept</h1>
     </div>
-    <div class="topbar-actions">
-      <button class="settings-btn" id="settings-btn" data-click="goTo" data-arg="screen-settings" aria-label="Settings">⚙︎</button>
-      <button class="back-btn" id="back-btn" data-click="goBack">← Back</button>
-    </div>
+    <button class="settings-btn" id="settings-btn" data-click="goTo" data-arg="screen-settings" aria-label="Settings"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-sliders"/></svg></button>
   </div>
 
+  <!-- Decorative icons inside the home screen use role="presentation": the home-screen test forbids the word "hidden" in that block. -->
   <!-- ════════════════════════════════════
        SCREEN: Home
   ════════════════════════════════════ -->
     <main id="screen-home" class="screen active" aria-labelledby="home-title">
     <div class="hero">
-      <div class="hero-emoji">✨</div>
       <h2 id="home-title" tabindex="-1">Welcome!<br>How can I help you?</h2>
       <p>From concept to prompt.</p>
     </div>
 
     <div class="sticky-cta mt-4">
-      <button class="btn btn-primary" data-click="startNewPrompt">＋ &nbsp;Add New Prompt</button>
+      <button class="btn btn-primary" data-click="startNewPrompt"><svg class="icon" role="presentation" focusable="false"><use href="#i-plus"/></svg>Add New Prompt</button>
     </div>
 
     <div class="info-card quick-start">
@@ -62,15 +90,18 @@
           <option value="grok">Grok</option>
         </select>
       </div>
-      <button class="btn btn-secondary" id="quick-start-btn" data-click="startQuickPrompt" disabled>Create Prompt →</button>
+      <button class="btn btn-secondary" id="quick-start-btn" data-click="startQuickPrompt" disabled>Create Prompt</button>
     </div>
 
     <div class="section-label">Saved Prompts</div>
     <label class="sr-only" for="prompt-search">Search saved prompts</label>
-    <input class="prompt-search" type="search" id="prompt-search" placeholder="Search saved prompts" data-input="renderList" />
+    <div class="search-field">
+      <svg class="icon" role="presentation" focusable="false"><use href="#i-search"/></svg>
+      <input class="prompt-search" type="search" id="prompt-search" placeholder="Search saved prompts" data-input="renderList" />
+    </div>
     <div class="prompt-list" id="prompt-list">
       <div class="empty-state">
-        <div class="empty-icon">📝</div>
+        <div class="empty-icon"><svg class="icon" role="presentation" focusable="false"><use href="#i-note"/></svg></div>
         No saved prompts yet.<br>Your first prompt will appear here.
       </div>
     </div>
@@ -85,12 +116,12 @@
     <div class="step-sub">PromptCept is designed to work without an account.</div>
 
     <div class="info-card">
-      <h3>🔒 Your prompts stay private</h3>
+      <h3><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-lock"/></svg>Your prompts stay private</h3>
       <p>Your prompt names, task descriptions, and generated prompts are stored only on this device. PromptCept does not collect, track, or sell your personal information.</p>
     </div>
 
     <div class="info-card">
-      <h3>✨ On-device generation</h3>
+      <h3><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-device"/></svg>On-device generation</h3>
       <p>Prompts are assembled locally from built-in templates. Your content is not sent to OpenAI, Anthropic, Google, xAI, or Sandbox Digital Labs.</p>
     </div>
 
@@ -127,7 +158,7 @@
 
     <button class="btn danger-btn" data-click="deleteAllData">Delete All Saved Prompts</button>
     <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Done</button>
-    <div class="version-label">PromptCept – AI Prompt Builder · Version 1.1</div>
+    <div class="version-label">PromptCept – AI Prompt Builder · Version 1.2.1</div>
   </div>
 
   <!-- ════════════════════════════════════
@@ -155,27 +186,27 @@
     <div class="step-sub-note">Not sure yet? Skip this — you can copy your prompt and paste it into any AI, and pick a favorite later.</div>
     <div class="ai-picker">
       <button type="button" class="ai-chip" id="chip-chatgpt" data-click="pickAI" data-arg="chatgpt" aria-pressed="false">
-        <div class="ai-chip-icon">🤖</div>
+        <div class="ai-chip-icon"></div>
         <div class="ai-chip-name">ChatGPT</div>
         <div class="ai-chip-sub">OpenAI</div>
       </button>
       <button type="button" class="ai-chip" id="chip-claude" data-click="pickAI" data-arg="claude" aria-pressed="false">
-        <div class="ai-chip-icon">🧠</div>
+        <div class="ai-chip-icon"></div>
         <div class="ai-chip-name">Claude</div>
         <div class="ai-chip-sub">Anthropic</div>
       </button>
       <button type="button" class="ai-chip" id="chip-gemini" data-click="pickAI" data-arg="gemini" aria-pressed="false">
-        <div class="ai-chip-icon">💎</div>
+        <div class="ai-chip-icon"></div>
         <div class="ai-chip-name">Gemini</div>
         <div class="ai-chip-sub">Google</div>
       </button>
       <button type="button" class="ai-chip" id="chip-grok" data-click="pickAI" data-arg="grok" aria-pressed="false">
-        <div class="ai-chip-icon">⚡</div>
+        <div class="ai-chip-icon"></div>
         <div class="ai-chip-name">Grok</div>
         <div class="ai-chip-sub">xAI</div>
       </button>
       <button type="button" class="ai-chip ai-chip-none" id="chip-none" data-click="pickAI" data-arg="" aria-pressed="false">
-        <div class="ai-chip-icon">🤔</div>
+        <div class="ai-chip-icon"></div>
         <div class="ai-chip-name">Decide later</div>
         <div class="ai-chip-sub">Not sure yet</div>
       </button>
@@ -185,42 +216,42 @@
     <div class="section-label">Category</div>
     <div class="cat-grid">
       <button type="button" class="cat-card" id="cat-writing" data-click="pickCat" data-arg="writing" aria-pressed="false">
-        <div class="cat-icon">✍️</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></div>
         <div class="cat-name">Writing & Editing</div>
         <div class="cat-desc">Emails, rewrites, articles</div>
       </button>
       <button type="button" class="cat-card" id="cat-coding" data-click="pickCat" data-arg="coding" aria-pressed="false">
-        <div class="cat-icon">💻</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-code"/></svg></div>
         <div class="cat-name">Coding & Tech</div>
         <div class="cat-desc">Code, debugging, explanations</div>
       </button>
       <button type="button" class="cat-card" id="cat-business" data-click="pickCat" data-arg="business" aria-pressed="false">
-        <div class="cat-icon">💼</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-briefcase"/></svg></div>
         <div class="cat-name">Work & Business</div>
         <div class="cat-desc">Meetings, reports, marketing</div>
       </button>
       <button type="button" class="cat-card" id="cat-creative" data-click="pickCat" data-arg="creative" aria-pressed="false">
-        <div class="cat-icon">🎨</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bulb"/></svg></div>
         <div class="cat-name">Creative Ideas</div>
         <div class="cat-desc">Ideas, stories, scripts</div>
       </button>
       <button type="button" class="cat-card" id="cat-analysis" data-click="pickCat" data-arg="analysis" aria-pressed="false">
-        <div class="cat-icon">📊</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chart"/></svg></div>
         <div class="cat-name">Research & Analysis</div>
         <div class="cat-desc">Research, summaries, decisions</div>
       </button>
       <button type="button" class="cat-card" id="cat-learning" data-click="pickCat" data-arg="learning" aria-pressed="false">
-        <div class="cat-icon">📚</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-book"/></svg></div>
         <div class="cat-name">Learning</div>
         <div class="cat-desc">Explain, teach, guide</div>
       </button>
       <button type="button" class="cat-card" id="cat-planning" data-click="pickCat" data-arg="planning" aria-pressed="false">
-        <div class="cat-icon">🗂️</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-checklist"/></svg></div>
         <div class="cat-name">Planning & Productivity</div>
         <div class="cat-desc">Projects, schedules, goals</div>
       </button>
       <button type="button" class="cat-card" id="cat-images" data-click="pickCat" data-arg="images" aria-pressed="false">
-        <div class="cat-icon">🖼️</div>
+        <div class="cat-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-image"/></svg></div>
         <div class="cat-name">Images</div>
         <div class="cat-desc">AI image prompts</div>
       </button>
@@ -229,7 +260,7 @@
 
     <div class="sticky-cta">
       <button class="btn btn-primary" id="btn-s1-next" data-click="goTo" data-arg="screen-step1b" disabled>
-        Continue →
+        Continue
       </button>
     </div>
   </div>
@@ -253,7 +284,7 @@
 
     <div class="sticky-cta">
       <button class="btn btn-primary" id="btn-s1b-next" data-click="goTo" data-arg="screen-step2" disabled>
-        Continue →
+        Continue
       </button>
     </div>
   </div>
@@ -281,7 +312,7 @@
 
     <div class="sticky-cta mt-16">
       <button class="btn btn-primary" id="btn-generate" data-click="prepareConfirmation" disabled>
-        Review Request →
+        Review Request
       </button>
     </div>
   </div>
@@ -315,7 +346,7 @@
 
     <button type="button" class="btn btn-secondary" data-click="goTo" data-arg="screen-step2">Edit Request</button>
     <div class="sticky-cta mt-8">
-      <button type="button" class="btn btn-primary" id="btn-confirm-generate" data-click="generate">✦ &nbsp;Confirm &amp; Generate</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-generate" data-click="generate"><svg class="icon-fill" aria-hidden="true" focusable="false"><use href="#i-star4"/></svg>Confirm &amp; Generate</button>
     </div>
   </div>
 
@@ -324,7 +355,7 @@
   ════════════════════════════════════ -->
   <div id="screen-loading" class="screen" role="status" aria-live="polite">
     <div class="loader-wrap">
-      <div class="spinner"></div>
+      <svg class="icon-fill loader-star" aria-hidden="true" focusable="false"><use href="#i-star4"/></svg>
       <div>Crafting your prompt…</div>
       <div class="loader-sub" id="loader-sub">Optimizing for your AI…</div>
     </div>
@@ -334,7 +365,7 @@
        SCREEN: Result
   ════════════════════════════════════ -->
   <div id="screen-result" class="screen">
-    <div class="step-eyebrow mt-8">Your prompt is ready ✓</div>
+    <div class="step-eyebrow ready mt-8"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>Your prompt is ready</div>
     <div class="step-title" id="result-title">—</div>
 
     <div class="result-ai-badge" id="result-ai-badge">—</div>
@@ -343,23 +374,25 @@
       <label class="sr-only" for="result-prompt">Generated prompt</label>
       <textarea class="result-prompt" id="result-prompt" data-input="saveResultEdit"></textarea>
     </div>
-    <div class="edit-hint">✏️ Tap to edit before copying</div>
+    <div class="edit-hint">Tap the prompt to edit it before copying</div>
 
     <div class="action-row">
       <button class="btn copy-btn" id="copy-btn" data-click="copyPrompt">
-        <span id="copy-icon">⎘</span> <span id="copy-label">Copy</span>
+        <span class="btn-glyph" id="copy-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-copy"/></svg></span> <span id="copy-label">Copy</span>
       </button>
       <button class="btn regen-btn" data-click="regenerate">
-        ↺ &nbsp;Regenerate
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Regenerate
       </button>
     </div>
 
     <button class="btn btn-primary" id="open-ai-btn" data-click="copyAndOpenSelectedAI">
-      ↗ &nbsp;<span id="open-ai-label">Copy &amp; Open AI</span>
+      <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-open"/></svg><span id="open-ai-label">Copy &amp; Open AI</span>
     </button>
     <div class="edit-hint mt-10" id="open-ai-hint">Your prompt will be copied. Paste it into the AI, then send.</div>
-    <button class="btn btn-secondary" data-click="startNewPrompt">＋ &nbsp;New Prompt</button>
-    <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Home</button>
+    <div class="action-row-quiet">
+      <button class="btn btn-quiet" data-click="startNewPrompt"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>New Prompt</button>
+      <button class="btn btn-quiet" data-click="goTo" data-arg="screen-home">Home</button>
+    </div>
   </div>
 
   <!-- ════════════════════════════════════
@@ -372,23 +405,24 @@
       <div class="view-goal"  id="view-goal">—</div>
     </div>
     <div class="result-ai-badge" id="view-ai-badge">—</div>
-    <div class="divider"></div>
 
     <div class="result-prompt-wrap">
       <label class="sr-only" for="view-prompt">Saved prompt</label>
       <textarea class="result-prompt" id="view-prompt" data-input="saveViewedPromptEdit"></textarea>
     </div>
-    <div class="edit-hint">✏️ Tap to edit before copying</div>
+    <div class="edit-hint">Tap the prompt to edit it before copying</div>
 
     <div class="action-row">
       <button class="btn copy-btn" id="view-copy-btn" data-click="viewCopy">
-        <span id="view-copy-icon">⎘</span> <span id="view-copy-label">Copy</span>
+        <span class="btn-glyph" id="view-copy-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-copy"/></svg></span> <span id="view-copy-label">Copy</span>
       </button>
-      <button class="btn regen-btn" id="favorite-btn" data-click="toggleFavorite">☆ Add to Favorites</button>
+      <button class="btn regen-btn" id="favorite-btn" data-click="toggleFavorite"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-star"/></svg>Add to Favorites</button>
     </div>
-    <button class="btn btn-secondary mt-0" data-click="duplicateActivePrompt">⧉ &nbsp;Duplicate Prompt</button>
-    <button class="btn btn-primary" data-click="startNewPrompt">＋ &nbsp;New Prompt</button>
-    <button class="btn btn-secondary" data-click="goTo" data-arg="screen-home">Home</button>
+    <button class="btn btn-secondary mt-0" data-click="duplicateActivePrompt"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-stack"/></svg>Duplicate Prompt</button>
+    <div class="action-row-quiet">
+      <button class="btn btn-quiet" data-click="startNewPrompt"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>New Prompt</button>
+      <button class="btn btn-quiet" data-click="goTo" data-arg="screen-home">Home</button>
+    </div>
   </div>
 
 </div><!-- /app -->
