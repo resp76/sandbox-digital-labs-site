@@ -381,6 +381,7 @@ input:focus, textarea:focus {
   box-shadow: var(--shadow);
 }
 .product-layout-flip { grid-template-columns: minmax(280px, 0.55fr) minmax(0, 1.1fr); }
+.product-next { margin-top: clamp(64px, 9vw, 112px); }
 .product-detail-grid.peek-details { grid-template-columns: 1fr; gap: 36px; }
 .product-shot img { display: block; width: 100%; height: auto; border-radius: 22px; }
 .availability-note { margin: 16px 0 0; color: var(--muted-2); font-size: 13px; }
@@ -429,6 +430,7 @@ input:focus, textarea:focus {
   .contact-grid { grid-template-columns: 1fr; }
   .product-layout { grid-template-columns: 1fr; }
   .product-shot { width: min(100%, 330px); }
+  .product-layout-flip .product-shot { order: 2; }
 }
 @media (max-width: 720px) {
   .nav-toggle { display: inline-flex; }
