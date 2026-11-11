@@ -121,6 +121,17 @@ test('the site states the shipped availability of PromptCept and links to the Ap
   assert.equal(data.downloadUrl, 'https://apps.apple.com/us/app/promptcept/id6802508418');
 });
 
+test('the site states the shipped availability of Peek QR and links to the App Store', () => {
+  // The listing went live 2026-11-11; keep "coming soon" from outliving it.
+  const listing = 'href="https://apps.apple.com/app/peek-qr-safe-code-scanner/id6831228174"';
+  const product = read(pages.peekQr);
+  for (const [name, html] of [['home', read(pages.home)], ['peek-qr', product]]) {
+    assert.doesNotMatch(html, /coming soon/i, name + ' must not claim Peek QR is unreleased');
+    assert.ok(html.includes(listing), name + ' must link to the Peek QR App Store listing');
+  }
+  assert.match(product, /<meta name="apple-itunes-app" content="app-id=6831228174"/, 'peek-qr must carry the Smart App Banner');
+});
+
 test('legal and accessibility pages are published and cross-linked', () => {
   const privacy = read(pages.privacy);
   const siteTerms = assertPage(pages.siteTerms, '/terms/');
