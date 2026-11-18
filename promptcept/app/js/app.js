@@ -507,6 +507,8 @@ function prepareConfirmation() {
   document.getElementById('confirm-type').textContent = getSubcatLabel(state.category, state.subcategory) || 'Freestyle';
   document.getElementById('confirm-request').textContent = state.task;
   document.getElementById('prompt-clarification').value = state.clarification;
+  coachQuestions = getCoachQuestions(state.category, `${state.task}\n${state.clarification}`);
+  renderCoach();
   goTo('screen-confirm');
 }
 
@@ -514,7 +516,7 @@ function prepareConfirmation() {
    GENERATE
 ═══════════════════════════════════════════ */
 function generate() {
-  state.clarification = document.getElementById('prompt-clarification').value.trim();
+  state.clarification = cleanClarification(document.getElementById('prompt-clarification').value);
   state.variation = 0;
   state.prompt = buildPrompt(state.name, state.ai, state.category, getReviewedTask(), state.variation);
   savePrompt();
@@ -1046,6 +1048,7 @@ function saveViewedPromptEdit() {
   prompt.prompt = value;
   prompt.updatedAt = Date.now();
   persist();
+  updateTemplateHint();
   announce('Prompt changes saved.');
 }
 
@@ -1294,12 +1297,653 @@ function viewSavedById(id) {
   autoResizeTA(ta);
   resetCopy('view-copy-btn', 'view-copy-icon', 'view-copy-label');
   updateFavoriteButton();
+  updateTemplateHint();
   goTo('screen-view');
 }
 
 function viewSaved(index) {
   const prompt = savedPrompts[index];
   if (prompt) viewSavedById(prompt.id);
+}
+
+/* ═══════════════════════════════════════════
+   PROMPT COACH
+   Offline and rule-based. Looks for the details that most often improve a
+   prompt (audience, format, tone, limits, source material, what success
+   looks like) and offers up to three missing ones as one-tap additions to
+   the review screen's details box. The answers are plain text in that box.
+═══════════════════════════════════════════ */
+const COACH_QUESTIONS = {
+  audience: {
+    field: 'Audience', ask: 'Who is it for?',
+    seen: /\b(audience|readers?|customers?|clients?|students?|beginners?|experts?|kids?|children|teens?|teenagers?|team|managers?|boss|investors?|users?|colleagues?|parents?|patients?|recruiters?|employees|stakeholders)\b/i,
+  },
+  format: {
+    field: 'Format', ask: 'What format should the result take?',
+    seen: /\b(format|bullets?|table|list|json|csv|markdown|outline|paragraphs?|steps?|checklist|code block|headlines?|slides?|sentences?|words?|pages?|characters?|aspect ratio)\b/i,
+  },
+  tone: {
+    field: 'Tone or style', ask: 'What tone or style?',
+    seen: /\b(tone|style|formal|casual|friendly|professional|funny|humou?r|serious|warm|playful|persuasive|confident|empathetic|concise|technical|plain|mood|cinematic|minimal)\b/i,
+  },
+  constraints: {
+    field: 'Must include or avoid', ask: 'Anything it must include or avoid?',
+    seen: /\b(must|should not|shouldn'?t|avoid|don'?t|do not|never|without|only|at most|at least|no more than|under \d+|limit|maximum|deadline|budget)\b/i,
+  },
+  source: {
+    field: 'Example or source', ask: 'Any example or source to work from?',
+    seen: /\b(example|for instance|such as|like this|here is|here's|below|attached|following|based on|source|reference)\b|"[^"]{8,}"/i,
+  },
+  success: {
+    field: 'Success looks like', ask: 'What does a great result look like?',
+    seen: /\b(goal|so that|in order to|outcome|success|aim|objective|by the end)\b/i,
+  },
+};
+// Which questions matter most for each category, most useful first.
+const COACH_ORDER = {
+  writing:   ['audience', 'tone', 'format', 'constraints', 'source', 'success'],
+  coding:    ['source', 'constraints', 'format', 'success'],
+  business:  ['audience', 'success', 'format', 'constraints', 'tone'],
+  creative:  ['tone', 'audience', 'constraints', 'format', 'source'],
+  analysis:  ['source', 'format', 'audience', 'success', 'constraints'],
+  learning:  ['audience', 'format', 'success', 'constraints'],
+  planning:  ['constraints', 'success', 'format', 'audience'],
+  images:    ['tone', 'constraints', 'format'],
+  freestyle: ['audience', 'format', 'constraints'],
+};
+const COACH_MAX = 3;
+let coachQuestions = [];
+
+// The (at most three) questions whose answer the request does not already contain.
+function getCoachQuestions(category, text) {
+  return (COACH_ORDER[category] || COACH_ORDER.freestyle)
+    .filter(id => !COACH_QUESTIONS[id].seen.test(text))
+    .slice(0, COACH_MAX)
+    .map(id => ({ id, ...COACH_QUESTIONS[id] }));
+}
+
+function hasCoachLine(details, field) {
+  const label = `${field.toLowerCase()}:`;
+  return details.split('\n').some(line => line.trim().toLowerCase().startsWith(label));
+}
+
+// Called on every keystroke in the details box too, so a question disappears
+// as soon as its line is in the box.
+function renderCoach() {
+  const details = document.getElementById('prompt-clarification').value;
+  const open = coachQuestions.filter(question => !hasCoachLine(details, question.field));
+  const chips = document.getElementById('coach-chips');
+  document.getElementById('coach').hidden = open.length === 0;
+  const shown = open.map(question => question.id).join();
+  if (chips.dataset.shown === shown) return;
+  chips.dataset.shown = shown;
+  chips.replaceChildren(...open.map(question => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'coach-chip';
+    chip.dataset.click = 'addCoachDetail';
+    chip.dataset.arg = question.id;
+    chip.append(icon('plus'), document.createTextNode(question.ask));
+    return chip;
+  }));
+}
+
+function addCoachDetail(id) {
+  const question = COACH_QUESTIONS[id];
+  const box = document.getElementById('prompt-clarification');
+  const current = box.value.trimEnd();
+  const next = `${current}${current ? '\n' : ''}${question.field}: `;
+  if (next.length > box.maxLength) {
+    announce('There is no room left in the details box.');
+    return;
+  }
+  box.value = next;
+  box.focus();
+  box.setSelectionRange(next.length, next.length);
+  renderCoach();
+  announce(`${question.field} added. Type your answer.`);
+}
+
+// Drops coach lines left blank (such as "Audience:") so they never reach the prompt.
+function cleanClarification(text) {
+  const blanks = Object.values(COACH_QUESTIONS).map(question => `${question.field.toLowerCase()}:`);
+  return text.split('\n').filter(line => !blanks.includes(line.trim().toLowerCase())).join('\n').trim();
+}
+
+/* ═══════════════════════════════════════════
+   TEMPLATES
+   A template is a prompt with {fill_in} fields. Using one asks for a value
+   for each field and saves a fresh, filled-in copy. Any saved prompt that
+   contains {fields} can be used the same way, so no extra data is stored.
+═══════════════════════════════════════════ */
+const VARIABLE_PATTERN = /\{([a-z][a-z0-9_]{0,29})\}/g;
+const VARIABLE_HINTS = new Map(Object.entries({
+  recipient: 'e.g. my manager, a new client', goal: 'e.g. get approval for the budget',
+  tone: 'e.g. warm and professional', key_points: 'A short list is fine',
+  audience: 'e.g. busy managers, first-year students', text: 'Paste it here',
+  topic: 'e.g. working from home', word_count: 'e.g. 800', platform: 'e.g. LinkedIn, Instagram',
+  language: 'e.g. Python, Swift', error: 'Paste the error or describe the bug',
+  expected: 'What should happen instead?', focus: 'e.g. security, readability',
+  framework: 'e.g. pytest, Jest', constraints: 'e.g. no extra libraries',
+  level: 'e.g. complete beginner', code: 'Paste it here', duration: 'e.g. 30 minutes',
+  meeting_goal: 'e.g. agree the Q3 plan', attendees: 'e.g. design, sales, two leads',
+  project: 'e.g. website relaunch', notes: 'Paste your rough notes',
+  issue: 'e.g. the order arrived damaged', resolution: 'e.g. a refund or a replacement',
+  product: 'e.g. insulated travel mug', features: 'The main features and facts',
+  role: 'e.g. product designer', company: 'e.g. Acme Corp', strengths: 'Skills, experience, results',
+  count: 'e.g. 10', thing: 'e.g. a coffee subscription', vibe: 'e.g. friendly and modern',
+  avoid: 'e.g. puns, anything too long', genre: 'e.g. mystery', character: 'e.g. a retired detective',
+  setting: 'e.g. a small coastal town', length: 'e.g. five bullet points',
+  options: 'e.g. Notion, Obsidian, Evernote', criteria: 'e.g. price, ease of use, privacy',
+  decision: 'e.g. moving to a new city for work', context: 'What matters and what is fixed?',
+  skill: 'e.g. basic statistics', weeks: 'e.g. 6', hours: 'e.g. 5', target_language: 'e.g. Spanish',
+  scenario: 'e.g. ordering at a restaurant', days: 'e.g. 5', destination: 'e.g. Lisbon',
+  interests: 'e.g. food and history', budget: 'e.g. $150 a day', deadline: 'e.g. March 31',
+  priorities: 'Your top three', commitments: 'Meetings, school runs, appointments',
+  habit: 'e.g. walk for 20 minutes', obstacle: 'e.g. I forget in the evening',
+  subject: 'e.g. a fox in a snowy forest', scene: 'e.g. a misty forest at dawn',
+  lighting: 'e.g. soft morning light', mood: 'e.g. calm and quiet', brand: 'e.g. Northwind Coffee',
+  style: 'e.g. minimal and modern', colors: 'e.g. navy and warm yellow',
+  background: 'e.g. a white marble surface',
+}));
+
+// Ordered as they appear on screen. Keep names short: the first short value a
+// user types is appended to the name of the prompt that gets saved.
+const TEMPLATES = [
+  {
+    category: 'writing', name: 'Write an email',
+    about: 'A clear email with a subject line and one next step.',
+    body: `Write an email to {recipient}.
+
+Goal: {goal}
+Tone: {tone}
+Points to cover:
+{key_points}
+
+Keep it as short as it can be while staying clear. Put the main request in the first two sentences, end with one specific next step, and suggest a subject line.`,
+  },
+  {
+    category: 'writing', name: 'Rewrite in a new tone',
+    about: 'Change how a draft sounds without changing what it says.',
+    body: `Rewrite the text below in a {tone} tone for {audience}.
+
+Keep the meaning and every fact the same. Improve clarity and flow, cut filler, and do not add claims that are not in the original. After the rewrite, list the three most important changes you made.
+
+Text:
+{text}`,
+  },
+  {
+    category: 'writing', name: 'Blog post draft',
+    about: 'A structured first draft written for one specific reader.',
+    body: `Write a blog post about {topic} for {audience}.
+
+Length: about {word_count} words.
+
+Open with a hook that names the reader's problem. Use clear subheadings, give one concrete example or short story per section, and finish with a brief takeaway and one next step. Use plain language and avoid filler openings.`,
+  },
+  {
+    category: 'writing', name: 'Social media post',
+    about: 'Three post options, each tuned to the platform.',
+    body: `Write three different {platform} posts about {topic} for {audience}.
+
+Vary the angle: one practical tip, one personal or story-led post, and one question that invites replies. Match the norms of {platform} for length and formatting, lead with the strongest line, and avoid cliches and empty hype. Suggest hashtags only if they suit the platform.`,
+  },
+  {
+    category: 'writing', name: 'Proofread and tighten',
+    about: 'Fix errors and trim wordiness, and see what changed.',
+    body: `Proofread the text below.
+
+Fix spelling, grammar, and punctuation, and tighten wordy sentences without changing the meaning or my voice. Show the corrected text first, then a short list of the substantive edits so I can accept or reject them.
+
+Text:
+{text}`,
+  },
+  {
+    category: 'coding', name: 'Explain this code',
+    about: 'A walkthrough pitched at the level you choose.',
+    body: `Explain the {language} code below to someone at this level: {level}.
+
+Start with what it does in one or two sentences, then walk through it in the order it runs. Define any term a person at that level might not know, point out anything surprising or risky, and finish with one way to improve it.
+
+Code:
+{code}`,
+  },
+  {
+    category: 'coding', name: 'Debug an error',
+    about: 'Likely causes ranked, with the smallest fix first.',
+    body: `Help me debug this {language} problem.
+
+Error or wrong behavior:
+{error}
+
+What I expected:
+{expected}
+
+Code:
+{code}
+
+Explain the most likely cause first, then show the smallest fix. If several causes are plausible, rank them and tell me how to confirm each one. Do not rewrite code that is not part of the problem.`,
+  },
+  {
+    category: 'coding', name: 'Review code',
+    about: 'Problems ordered by severity, each with a concrete fix.',
+    body: `Review the {language} code below with a focus on {focus}.
+
+List problems in order of severity. For each one, say where it is, why it matters, and show a concrete fix. Mention what is already done well in one short paragraph. Do not rewrite everything or change the style unless it causes a problem.
+
+Code:
+{code}`,
+  },
+  {
+    category: 'coding', name: 'Write unit tests',
+    about: 'Normal cases, edge cases, and error paths.',
+    body: `Write unit tests in {language} using {framework} for the code below.
+
+Cover the normal cases, boundary values, invalid input, and any error paths. Name each test after the behavior it checks and keep each test small and independent. If the code is hard to test as written, say why and suggest the smallest change.
+
+Code:
+{code}`,
+  },
+  {
+    category: 'coding', name: 'Write a function',
+    about: 'A small, well-handled function with example calls.',
+    body: `Write a {language} function that does the following: {goal}
+
+Constraints: {constraints}
+
+Handle edge cases and invalid input. Use clear names, add short comments only where the reason is not obvious, and finish with two example calls and their expected results.`,
+  },
+  {
+    category: 'business', name: 'Meeting agenda',
+    about: 'Timed items with owners and a clear outcome.',
+    body: `Create an agenda for this meeting: {meeting_goal}
+
+Attendees: {attendees}
+Length: {duration}
+
+Give each item a time limit and an owner, put decisions that need everyone first, and finish with a short slot for next steps. Add one sentence at the top stating what a good outcome looks like.`,
+  },
+  {
+    category: 'business', name: 'Weekly status update',
+    about: 'Progress, plans, risks, and what you need.',
+    body: `Write a weekly status update for {project}, for {audience}.
+
+My notes:
+{notes}
+
+Use four short sections: progress, next week, risks or blockers, and what I need from the reader. Lead with the single most important thing. Be specific, use the numbers I gave, and do not invent details that are not in my notes.`,
+  },
+  {
+    category: 'business', name: 'Customer reply',
+    about: 'A calm, specific reply that promises only what you can do.',
+    body: `Write a reply to a customer.
+
+What happened: {issue}
+What we can offer: {resolution}
+Tone: {tone}
+
+Acknowledge the problem in the first sentence without blaming the customer, explain what happens next in plain words, and keep it under 150 words. Do not promise anything beyond what I listed.`,
+  },
+  {
+    category: 'business', name: 'Product description',
+    about: 'Benefit-led copy, plus a 50-word short version.',
+    body: `Write a product description for {product}, aimed at {audience}.
+
+Key features and facts:
+{features}
+
+Lead with the main benefit, not the feature list. Turn each feature into what it means for the buyer, keep claims honest and specific, and finish with a short line that invites the next step. Also give me a short version of about 50 words.`,
+  },
+  {
+    category: 'business', name: 'Cover letter',
+    about: 'About 250 words that connect your strengths to the role.',
+    body: `Write a cover letter for the {role} role at {company}.
+
+My strengths and relevant experience:
+{strengths}
+
+Keep it to about 250 words. Open with why this role and this company, connect two or three of my strengths to what the role needs with specific examples, and close with a confident, brief call to action. Do not invent experience, skills, or credentials that I did not list.`,
+  },
+  {
+    category: 'creative', name: 'Brainstorm ideas',
+    about: 'A mix of safe, bold, and unusual ideas, with a top three.',
+    body: `Brainstorm ideas for {topic}.
+
+Number of ideas: {count}
+Constraints: {constraints}
+
+Include a mix of safe, bold, and unusual ideas. Give each idea a short name and one sentence on why it could work. Then pick your top three and say what you would test first.`,
+  },
+  {
+    category: 'creative', name: 'Name ideas',
+    about: 'Fifteen names grouped by style, with your top three.',
+    body: `Suggest 15 names for {thing}.
+
+The names should feel {vibe}. Avoid: {avoid}
+
+Mix short and descriptive options, group them by style, and flag any that are hard to spell or say aloud. Pick your top three and explain why.`,
+  },
+  {
+    category: 'creative', name: 'Short story',
+    about: 'About 800 words with a clear want and a real obstacle.',
+    body: `Write a short story in the {genre} genre, about 800 words.
+
+Main character: {character}
+Setting: {setting}
+
+Open in the middle of something happening, give the character a clear want and a real obstacle, and end with a change rather than a summary. Show feelings through actions and details, and avoid cliches in the first and last lines.`,
+  },
+  {
+    category: 'analysis', name: 'Summarize a document',
+    about: 'Conclusion first, then the points that matter.',
+    body: `Summarize the text below for {audience} in {length}.
+
+Lead with the main conclusion, then the key supporting points, then anything that needs a decision or follow-up. Keep the original meaning, do not add facts that are not in the text, and mark anything that is unclear or missing.
+
+Text:
+{text}`,
+  },
+  {
+    category: 'analysis', name: 'Compare options',
+    about: 'A comparison table and a clear recommendation.',
+    body: `Compare these options: {options}
+
+Judge them on: {criteria}
+
+Present a table with one row per option and one column per criterion, then give a short written verdict. State your assumptions, point out where the choice depends on my situation, and say which option you would pick and why.`,
+  },
+  {
+    category: 'analysis', name: 'Weigh a decision',
+    about: 'Arguments for and against, then a recommendation.',
+    body: `Help me decide: {decision}
+
+Context and constraints:
+{context}
+
+List the strongest arguments for and against, including risks that are easy to overlook. Say what information would change the answer, then give a recommendation with your confidence level and the first step to take.`,
+  },
+  {
+    category: 'learning', name: 'Explain a concept',
+    about: 'A plain definition, an analogy, an example, and a check.',
+    body: `Explain {topic} to someone at this level: {level}.
+
+Start with a one-sentence plain definition, then use one everyday analogy and one worked example. Point out the most common misunderstanding, and end with three questions I can use to check that I understood.`,
+  },
+  {
+    category: 'learning', name: 'Study plan',
+    about: 'Weekly goals, practice tasks, and self-tests.',
+    body: `Create a study plan for {skill} over {weeks} weeks, with about {hours} hours available each week.
+
+Break it into weekly goals with specific topics, practice tasks, and a short self-test at the end of each week. Put the foundations first, say what to skip if time runs short, and suggest how to tell when I am ready to move on.`,
+  },
+  {
+    category: 'learning', name: 'Quiz me',
+    about: 'One question at a time, with feedback and a final score.',
+    body: `Quiz me on {topic}.
+
+Ask {count} questions at this level: {level}. Ask one question at a time and wait for my answer before continuing. After each answer, tell me whether I was right, explain the correct answer briefly, and adjust the difficulty. Finish with a score and the topics I should review.`,
+  },
+  {
+    category: 'learning', name: 'Practice a language',
+    about: 'A conversation partner that corrects you as you go.',
+    body: `Be my {target_language} conversation partner. My level is {level}.
+
+Scenario: {scenario}
+
+Reply mostly in {target_language} with short, natural sentences at my level. After each of my messages, correct my mistakes in one line, then continue the conversation. Ask me a question each turn.`,
+  },
+  {
+    category: 'planning', name: 'Trip itinerary',
+    about: 'Day-by-day plan grouped by area, with a rainy-day backup.',
+    body: `Plan a trip to {destination}.
+
+Length: {days} days
+Interests: {interests}
+Budget: {budget}
+
+Give a day-by-day itinerary with morning, afternoon, and evening, grouped by area to limit travel time. Include rough costs, one backup option for bad weather, and booking tips for anything that sells out.`,
+  },
+  {
+    category: 'planning', name: 'Project plan',
+    about: 'Phases, milestones, risks, and what to cut first.',
+    body: `Create a plan for this project: {project}
+
+Deadline: {deadline}
+Constraints and resources: {constraints}
+
+Break the work into phases with milestones, owners, and dependencies. Highlight the critical path, list the top risks with a mitigation for each, and say what you would cut first if time runs short.`,
+  },
+  {
+    category: 'planning', name: 'Weekly schedule',
+    about: 'Hard work placed when your energy is highest.',
+    body: `Build a schedule for my week.
+
+My top priorities: {priorities}
+Hours available for focused work: {hours}
+Fixed commitments: {commitments}
+
+Place the most demanding work when I have the most energy, leave breaks and buffer time, and point out anything that does not fit so I can decide what to drop.`,
+  },
+  {
+    category: 'planning', name: 'Build a habit',
+    about: 'A tiny start, a trigger, tracking, and a plan for slips.',
+    body: `Help me build this habit: {habit}
+
+What usually gets in my way: {obstacle}
+
+Design a plan that starts almost too small, ties the habit to something I already do each day, and gives me a way to track progress. Include what to do after a missed day and how to scale up after two weeks.`,
+  },
+  {
+    category: 'images', name: 'Photo-style image',
+    about: 'A realistic photo with one clear focal point.',
+    body: `Create a realistic photograph of {subject} in {scene}.
+
+Lighting: {lighting}
+Mood: {mood}
+
+Describe the camera angle, lens feel, and depth of field, and keep the composition simple with one clear focal point. Avoid text, watermarks, and distorted faces or hands.`,
+  },
+  {
+    category: 'images', name: 'Logo concept',
+    about: 'A simple mark that works small and in one color.',
+    body: `Design a logo concept for {brand}.
+
+Style: {style}
+Colors: {colors}
+
+Use a simple, memorable shape that stays clear at small sizes and works in one color. Describe the symbol and how it relates to the brand. Do not include text or lettering in the image; I will add the name separately.`,
+  },
+  {
+    category: 'images', name: 'Product photo',
+    about: 'A clean studio shot with room for text later.',
+    body: `Create a product photo of {product} on {background}.
+
+Style: {style}
+
+Light it softly from one side with a gentle shadow, keep the product sharp and centered, and leave clean space around it for adding text later. Show true colors and realistic materials, with no extra objects and no text.`,
+  },
+];
+let activeTemplate = null;
+
+function findVariables(text) {
+  return [...new Set([...text.matchAll(VARIABLE_PATTERN)].map(match => match[1]))];
+}
+
+// One pass, so a value that itself contains {braces} is never filled in again.
+function fillVariables(text, values) {
+  return text.replace(VARIABLE_PATTERN, (match, name) => (values.has(name) ? values.get(name) : match));
+}
+
+function humanizeVariable(name) {
+  const words = name.replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function openTemplates() {
+  renderTemplateList();
+  goTo('screen-templates');
+}
+
+function renderTemplateList() {
+  const list = document.getElementById('template-list');
+  if (list.childElementCount) return; // built once
+  for (const [category, categoryMeta] of Object.entries(CAT_META)) {
+    const templates = TEMPLATES.filter(template => template.category === category);
+    if (!templates.length) continue;
+    const heading = document.createElement('div');
+    heading.className = 'section-label';
+    heading.textContent = categoryMeta.label;
+    const group = document.createElement('div');
+    group.className = 'prompt-list';
+    for (const template of templates) group.append(makeTemplateRow(template, categoryMeta));
+    list.append(heading, group);
+  }
+}
+
+function makeTemplateRow(template, categoryMeta) {
+  const row = document.createElement('div');
+  row.className = 'prompt-card template-row';
+  row.setAttribute('role', 'button');
+  row.tabIndex = 0;
+  row.setAttribute('aria-label', `Use template ${template.name}`);
+  const open = () => openTemplate(template);
+  row.addEventListener('click', open);
+  row.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      open();
+    }
+  });
+
+  const badge = document.createElement('div');
+  badge.className = 'prompt-card-icon';
+  badge.append(icon(categoryMeta.icon));
+  const text = document.createElement('div');
+  text.className = 'prompt-card-text';
+  const name = document.createElement('div');
+  name.className = 'prompt-card-name';
+  name.textContent = template.name;
+  const about = document.createElement('div');
+  about.className = 'prompt-card-sub';
+  about.textContent = template.about;
+  text.append(name, about);
+  const lead = document.createElement('div');
+  lead.className = 'prompt-card-meta';
+  lead.append(badge, text);
+  const chevron = document.createElement('div');
+  chevron.className = 'prompt-card-chevron';
+  chevron.append(icon('chev-right'));
+  row.append(lead, chevron);
+  return row;
+}
+
+function openTemplate(template) {
+  activeTemplate = template;
+  document.getElementById('template-title').textContent = template.name;
+  document.getElementById('template-sub').textContent =
+    template.about.length > 160 ? `${template.about.slice(0, 157)}…` : template.about;
+  document.getElementById('template-fields').replaceChildren(...findVariables(template.body).map(name => {
+    const field = document.createElement('div');
+    field.className = 'template-field';
+    const label = document.createElement('label');
+    label.htmlFor = `tpl-var-${name}`;
+    label.textContent = humanizeVariable(name);
+    const input = document.createElement('textarea');
+    input.id = `tpl-var-${name}`;
+    input.rows = 2;
+    input.maxLength = 6000;
+    input.placeholder = VARIABLE_HINTS.get(name) || '';
+    input.dataset.input = 'updateTemplateForm';
+    field.append(label, input);
+    return field;
+  }));
+  updateTemplateForm();
+  goTo('screen-template');
+}
+
+function updateTemplateForm(event) {
+  if (event?.target?.tagName === 'TEXTAREA') autoResizeTA(event.target);
+  const names = findVariables(activeTemplate.body);
+  document.getElementById('template-create-btn').disabled =
+    names.some(name => !document.getElementById(`tpl-var-${name}`).value.trim());
+}
+
+function createFromTemplate() {
+  if (!activeTemplate) return;
+  const values = new Map(findVariables(activeTemplate.body)
+    .map(name => [name, document.getElementById(`tpl-var-${name}`).value.trim()]));
+  if ([...values.values()].some(value => !value)) return;
+  const label = [...values.values()].find(value => value.length <= 30 && !value.includes('\n'));
+  const now = Date.now();
+  const record = {
+    id: now,
+    name: (label ? `${activeTemplate.name}: ${label}` : activeTemplate.name).slice(0, 60),
+    ai: activeTemplate.ai || '',
+    category: activeTemplate.category,
+    subcategory: activeTemplate.subcategory || '',
+    task: activeTemplate.about.slice(0, 1000),
+    clarification: '',
+    prompt: fillVariables(activeTemplate.body, values),
+    favorite: false,
+    createdAt: now,
+    updatedAt: now,
+  };
+  savedPrompts.unshift(record);
+  persist();
+  announce('Prompt created from template.');
+  viewSavedById(record.id);
+}
+
+function useSavedAsTemplate() {
+  const saved = findActiveSavedPrompt();
+  if (!saved) return;
+  openTemplate({
+    name: saved.name,
+    about: saved.task,
+    category: saved.category,
+    ai: saved.ai,
+    subcategory: saved.subcategory,
+    body: document.getElementById('view-prompt').value,
+  });
+}
+
+// Shows "Use as template" only when the open prompt has {fields}, and says how to add them when it has none.
+function updateTemplateHint() {
+  const names = findVariables(document.getElementById('view-prompt').value);
+  document.getElementById('use-template-btn').hidden = names.length === 0;
+  document.getElementById('template-hint').textContent = names.length
+    ? `Fill-in fields in this prompt: ${names.map(name => `{${name}}`).join(', ')}`
+    : 'Tip: write {audience} or {topic} in braces to reuse this prompt as a template.';
+}
+
+/* ═══════════════════════════════════════════
+   CLIPBOARD
+   Fills the quick-start box and stops there: nothing is saved until the user
+   taps Create Prompt, so whatever happens to be on the clipboard is never stored by accident.
+═══════════════════════════════════════════ */
+async function pasteFromClipboard() {
+  const box = document.getElementById('quick-task');
+  const button = document.getElementById('paste-btn');
+  const flash = message => {
+    button.lastChild.textContent = message;
+    setTimeout(() => { button.lastChild.textContent = 'Paste from clipboard'; }, 2500);
+    announce(message);
+  };
+  try {
+    const text = (await navigator.clipboard.readText()).trim();
+    if (!text) {
+      flash('The clipboard is empty');
+      return;
+    }
+    box.setRangeText(text, box.selectionStart, box.selectionEnd, 'end');
+    const clipped = box.value.length > box.maxLength;
+    box.value = box.value.slice(0, box.maxLength);
+    updateQuickStart();
+    box.focus();
+    announce(clipped ? `Pasted. Only the first ${box.maxLength} characters fit.` : 'Pasted from the clipboard.');
+  } catch (error) {
+    flash('Paste blocked. Press and hold the box.');
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -1332,6 +1976,8 @@ for (const type of ['click', 'input', 'change']) {
 }
 
 renderList();
+// Reading the clipboard needs the async Clipboard API; without it, press-and-hold paste still works.
+if (!navigator.clipboard?.readText) document.getElementById('paste-btn').hidden = true;
 
 // Reset step1 form when navigating to it
 document.getElementById('screen-step1').addEventListener('transitionend', () => {});

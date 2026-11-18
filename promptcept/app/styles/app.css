@@ -454,6 +454,51 @@ select {
 .prompt-search { margin-bottom: 12px; }
 .char-count { font-size: var(--t-foot); color: var(--muted); text-align: right; margin-top: 6px; }
 
+/* Paste button under the quick-start box: a quiet, left-aligned text button. */
+.paste-btn {
+  flex: none;
+  justify-content: flex-start;
+  min-height: 44px;
+  margin: 4px 0 0 -8px;
+  padding: 0 8px;
+  font-size: var(--t-sub);
+}
+
+/* ── Prompt coach: questions that add a line to the details box ── */
+.coach { margin-bottom: 4px; }
+.coach .section-label { margin-top: 20px; margin-bottom: 4px; }
+.coach .step-sub-note { margin-top: 0; }
+.coach-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.coach-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  font-size: var(--t-sub);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.coach-chip .icon { width: 1rem; height: 1rem; }
+.coach-chip:active { background: var(--raise); }
+
+/* ── Templates ── */
+#template-list .section-label:first-child { margin-top: 8px; }
+.template-row .prompt-card-sub { white-space: normal; }
+.template-field { margin-bottom: 14px; }
+.template-field label {
+  display: block;
+  font-size: var(--t-foot);
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.template-field textarea { min-height: 88px; }
+
 /* ── Selection controls ──
    Selected = outline + tint + a check, so it never relies on color alone. */
 .ai-chip, .cat-card {
