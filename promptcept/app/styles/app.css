@@ -50,6 +50,10 @@
   --t-foot: .8125rem;
   --t-sub: .9375rem;
 
+  /* Page gutter and content column. The tablet block below widens both. */
+  --gutter: 20px;
+  --column: 480px;
+
   --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-serif: ui-serif, 'New York', 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Noto Serif', serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, 'Roboto Mono', monospace;
@@ -144,10 +148,10 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 480px;
+  max-width: var(--column);
   width: 100%;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--gutter);
 }
 
 /* ── Top bar ── */
@@ -158,9 +162,9 @@ body {
   gap: 12px;
   padding-top: calc(env(safe-area-inset-top) + 12px);
   padding-bottom: 8px;
-  margin: 0 -20px;
-  padding-left: 20px;
-  padding-right: 20px;
+  margin: 0 calc(var(--gutter) * -1);
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
   position: sticky;
   top: 0;
   background: var(--bar);
@@ -759,6 +763,24 @@ select {
   50% { transform: scale(1.1) rotate(45deg); opacity: 1; }
 }
 .loader-sub { font-size: var(--t-foot); opacity: .7; }
+
+/* ════════════════════════════════════
+   TABLET: iPad and any wide window
+   A wider column and denser grids. The height guard keeps an iPhone in
+   landscape (wide but short) on the phone layout, where the side safe areas
+   and the short screen suit the narrow column better.
+════════════════════════════════════ */
+@media (min-width: 700px) and (min-height: 600px) {
+  :root { --gutter: 32px; --column: 720px; }
+  .hero { padding: 32px 0 28px; }
+  .hero h2 { font-size: 2.6rem; }
+  .hero p { font-size: 1.1875rem; }
+  .step-title, .view-title { font-size: 2.1rem; }
+  .ai-picker, .cat-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .cat-card { min-height: 132px; }
+  .result-prompt { min-height: 360px; max-height: 620px; font-size: .9rem; }
+  .template-field textarea { min-height: 104px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
