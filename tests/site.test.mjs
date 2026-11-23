@@ -15,6 +15,7 @@ const pages = {
   accessibility: 'accessibility/index.html',
   peekQr: 'peek-qr/index.html',
   peekQrPrivacy: 'peek-qr/privacy/index.html',
+  peekQrTerms: 'peek-qr/terms/index.html',
 };
 
 function assertPage(relative, canonicalPath) {
@@ -75,6 +76,12 @@ test('Peek QR page and its privacy policy are public, honest, and reachable', ()
   assert.match(privacy, /anonymous ID/);
   assert.match(privacy, /No advertising/);
   assert.match(privacy, /contact@sandboxdigitallabs\.com/);
+  assert.match(privacy, /ML Kit/);
+  assert.match(product, /href="\/peek-qr\/terms\/"/);
+  const terms = assertPage(pages.peekQrTerms, '/peek-qr/terms/');
+  assert.match(terms, /renew automatically/);
+  assert.match(terms, /not a guarantee/);
+  assert.match(read('sitemap.xml'), /peek-qr\/terms\//);
   const home = read(pages.home);
   assert.match(home, /<h2>Peek QR<\/h2>/, 'homepage products must list Peek QR');
   assert.match(home, /href="\/peek-qr\/"/);
