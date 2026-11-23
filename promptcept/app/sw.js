@@ -3,7 +3,7 @@
 // The app generates prompts locally and stores them in localStorage, so once
 // the shell is cached it works with no network at all. Bump CACHE when any
 // shell asset changes; the old cache is dropped on activate.
-const CACHE = 'promptcept-v6';
+const CACHE = 'promptcept-v7';
 const SHELL = [
   '/promptcept/app/',
   '/promptcept/app/index.html',

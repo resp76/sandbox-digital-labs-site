@@ -332,6 +332,14 @@ function goBack() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Android's hardware Back button (MainActivity calls this): step back through the app's own
+// screens, and report false from Home so the app closes as usual.
+window.handleHardwareBack = () => {
+  if (screenHistory.length <= 1) return false;
+  goBack();
+  return true;
+};
+
 function updateBackBtn() {
   const cur = screenHistory[screenHistory.length - 1];
   const btn = document.getElementById('back-btn');
@@ -930,6 +938,7 @@ async function copyAndOpenSelectedAI() {
    RATINGS
 ═══════════════════════════════════════════ */
 const APP_STORE_ID = '6802508418';
+const PLAY_STORE_ID = 'com.sandboxdigitallabs.promptcept';
 const REVIEW_STATE_KEY = 'pcReviewV1';
 const REVIEW_PROMPT_AFTER = 3;
 const REVIEW_COOLDOWN_DAYS = 120;
@@ -978,10 +987,12 @@ async function maybeRequestReview() {
   writeReviewState(reviewState);
 }
 
-// Opens the App Store review sheet. Used by the Settings button, where the user
-// has explicitly chosen to leave a rating.
+// Opens the store's review page (App Store, or Google Play on Android). Used by the
+// Settings button, where the user has explicitly chosen to leave a rating.
 async function rateApp() {
-  const url = `https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`;
+  const url = window.Capacitor?.getPlatform?.() === 'android'
+    ? `https://play.google.com/store/apps/details?id=${PLAY_STORE_ID}`
+    : `https://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`;
   const AppLauncher = window.Capacitor?.Plugins?.AppLauncher;
   try {
     if (AppLauncher) {
@@ -1892,6 +1903,7 @@ function createFromTemplate() {
   persist();
   announce('Prompt created from template.');
   viewSavedById(record.id);
+  maybeRequestReview();
 }
 
 function useSavedAsTemplate() {
@@ -1978,6 +1990,8 @@ for (const type of ['click', 'input', 'change']) {
 renderList();
 // Reading the clipboard needs the async Clipboard API; without it, press-and-hold paste still works.
 if (!navigator.clipboard?.readText) document.getElementById('paste-btn').hidden = true;
+// Peek QR is only on the App Store so far; don't send Android users there.
+if (window.Capacitor?.getPlatform?.() === 'android') document.getElementById('more-apps-card').hidden = true;
 
 // Reset step1 form when navigating to it
 document.getElementById('screen-step1').addEventListener('transitionend', () => {});
