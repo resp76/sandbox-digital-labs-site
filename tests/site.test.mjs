@@ -16,6 +16,7 @@ const pages = {
   peekQr: 'peek-qr/index.html',
   peekQrPrivacy: 'peek-qr/privacy/index.html',
   peekQrTerms: 'peek-qr/terms/index.html',
+  cleaningInvoice: 'cleaning-invoice/index.html',
 };
 
 function assertPage(relative, canonicalPath) {
@@ -187,4 +188,13 @@ test('the Content-Security-Policy hashes match the inline scripts actually shipp
 test('the old PromptCept privacy URL still resolves, because the App Store points at it', () => {
   const redirects = read('_redirects');
   assert.match(redirects, /\/promptcept\/privacy\/\s+\/privacy\/\s+301/);
+});
+
+test('the free cleaning invoice page is public, listed, and keeps typed data in the browser', () => {
+  const html = assertPage(pages.cleaningInvoice, '/cleaning-invoice/');
+  assert.match(html, /<h1>Free cleaning invoice template<\/h1>/);
+  assert.match(read('sitemap.xml'), /cleaning-invoice\//);
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)/i, 'inline scripts would need a CSP hash');
+  const js = read('cleaning-invoice/invoice.js');
+  assert.doesNotMatch(js, /\bfetch\(|XMLHttpRequest|sendBeacon/, 'the invoice tool must not send data anywhere');
 });

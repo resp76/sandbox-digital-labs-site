@@ -1,0 +1,165 @@
+/* Cleaning invoice tool. Builds on /styles.css tokens. */
+.inv-hero { padding-bottom: 24px; }
+.inv-hero h1 { margin: 0 0 14px; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.03em; line-height: 1.08; }
+.inv-tool-section { padding-top: 12px; }
+
+.inv-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+
+.inv-form fieldset {
+  margin: 0 0 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.02);
+  min-width: 0;
+}
+.inv-form legend { padding: 0 6px; font-weight: 900; font-size: 16px; }
+.inv-optional { font-weight: 600; color: var(--muted); }
+.inv-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.inv-form select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line-control);
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+}
+.inv-form select:focus { border-color: var(--accent-strong); box-shadow: 0 0 0 4px rgba(179, 79, 12, 0.22); outline: none; }
+.inv-form input[type="file"] { padding: 10px; }
+.inv-form textarea { font: inherit; resize: vertical; }
+
+.inv-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.inv-add select { flex: 1 1 200px; width: auto; }
+
+.inv-lines { display: grid; gap: 10px; margin: 4px 0 14px; }
+.inv-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px 104px auto;
+  gap: 8px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.inv-line .field { margin: 0; }
+.inv-remove {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-control);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.inv-remove:hover { background: rgba(0, 0, 0, 0.03); }
+
+.inv-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.inv-actions .btn { cursor: pointer; font: inherit; font-weight: 800; }
+.inv-hint { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.inv-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.inv-status { margin: 12px 0 0; font-weight: 800; min-height: 1.4em; }
+.inv-error { margin: 0; min-height: 0; color: #b91c1c; font-weight: 800; font-size: 13px; }
+.inv-error:empty { display: none; }
+
+.inv-form button:focus-visible, .inv-form .btn:focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* Preview: a sheet of paper */
+.inv-preview-wrap { position: sticky; top: 92px; }
+.inv-preview-label { margin-bottom: 8px; }
+.inv-sheet {
+  padding: clamp(18px, 3vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow: var(--shadow);
+  color: #111;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.inv-sheet p { margin: 0; }
+.inv-sheet [hidden] { display: none !important; } /* flex rows below would otherwise override hidden */
+.inv-sheet-head { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.inv-logo { display: block; max-width: 140px; max-height: 64px; object-fit: contain; margin-bottom: 8px; }
+.inv-biz { font-weight: 900; font-size: 18px; }
+.inv-small { white-space: pre-line; color: #444; font-size: 13px; }
+.inv-meta { text-align: right; }
+.inv-title { font-weight: 900; letter-spacing: 0.12em; font-size: 20px; color: var(--accent-text); margin-bottom: 6px; }
+.inv-meta dl, .inv-totals { margin: 0; }
+.inv-meta dl div, .inv-totals div { display: flex; justify-content: space-between; gap: 12px; }
+.inv-meta dt { color: #555; }
+.inv-meta dd, .inv-totals dd { margin: 0; font-weight: 700; }
+.inv-bill { margin-bottom: 18px; }
+.inv-label { font-size: 12px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #555; }
+.inv-client { font-weight: 800; font-size: 16px; }
+
+.inv-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 14px; }
+.inv-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #444;
+  border-bottom: 2px solid #111;
+  padding: 6px 4px;
+}
+.inv-table th:first-child { width: 46%; }
+.inv-table td { padding: 8px 4px; border-bottom: 1px solid #ddd; vertical-align: top; }
+.inv-table .num { text-align: right; }
+.inv-empty { color: #666; font-style: italic; }
+
+.inv-totals { margin-left: auto; max-width: 260px; }
+.inv-totals div { padding: 4px 0; }
+.inv-total { border-top: 2px solid #111; margin-top: 4px; padding-top: 8px !important; font-size: 17px; }
+.inv-total dt, .inv-total dd { font-weight: 900; }
+.inv-notes { margin-top: 22px !important; white-space: pre-line; color: #333; font-size: 13px; }
+
+@media (max-width: 980px) {
+  .inv-layout { grid-template-columns: 1fr; }
+  .inv-preview-wrap { position: static; }
+}
+
+@media (max-width: 520px) {
+  .inv-two { grid-template-columns: 1fr; }
+  .inv-line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .inv-line-desc { grid-column: 1 / -1; }
+  .inv-remove { grid-column: 1 / -1; }
+  .inv-sheet-head { flex-direction: column; }
+  .inv-meta { text-align: left; }
+  .inv-table th:first-child { width: 34%; }
+  .inv-table th { letter-spacing: 0; font-size: 11px; overflow-wrap: normal; }
+  .inv-sheet { font-size: 13px; }
+}
+
+/* Print only the invoice sheet */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; }
+  body > *:not(main), main > section:not(.inv-tool-section), .inv-form, .inv-preview-label, .skip-link { display: none !important; }
+  .inv-tool-section, .inv-tool-section .container { padding: 0; margin: 0; width: auto; }
+  .inv-layout { display: block; }
+  .inv-preview-wrap { position: static; }
+  .inv-sheet { border: 0; box-shadow: none; padding: 0; font-size: 12pt; }
+  .inv-title { color: #000; }
+}

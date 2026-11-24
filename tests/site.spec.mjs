@@ -12,6 +12,7 @@ const pages = [
   ['/peek-qr/', 'Peek QR', 'See where a code goes'],
   ['/peek-qr/privacy/', 'Peek QR Privacy Policy', 'Peek QR Privacy Policy'],
   ['/peek-qr/terms/', 'Peek QR Terms of Use', 'Peek QR Terms of Use'],
+  ['/cleaning-invoice/', 'Cleaning invoice', 'Free cleaning invoice template'],
 ];
 
 for (const [route, , heading] of pages) {
@@ -82,7 +83,7 @@ test('the App Store call to action points at the live listing', async ({ page })
 // WCAG 2.1 adds criteria that axe cannot evaluate statically. These two are the
 // ones most often broken by ordinary layout work, so they are asserted directly.
 
-const routes = ['/', '/promptcept/', '/promptcept/support/', '/promptcept/terms/', '/privacy/', '/terms/', '/accessibility/', '/peek-qr/', '/peek-qr/privacy/', '/peek-qr/terms/'];
+const routes = ['/', '/promptcept/', '/promptcept/support/', '/promptcept/terms/', '/privacy/', '/terms/', '/accessibility/', '/peek-qr/', '/peek-qr/privacy/', '/peek-qr/terms/', '/cleaning-invoice/'];
 
 for (const route of routes) {
   test(`${route} reflows to 320px without horizontal scrolling (WCAG 1.4.10)`, async ({ page }) => {
@@ -116,4 +117,26 @@ test('text spacing overrides do not clip content (WCAG 1.4.12)', async ({ page }
       .map(el => el.tagName.toLowerCase())
       .slice(0, 5));
   expect(clipped).toEqual([]);
+});
+
+test('the cleaning invoice adds up services, discount and tax', async ({ page }) => {
+  await page.goto('/cleaning-invoice/');
+  await page.getByLabel('Client name').fill('Jane Smith');
+  const rows = page.locator('.inv-line');
+  await rows.nth(0).getByLabel('Rate ($)').fill('120');
+  await page.getByLabel('Add a cleaning service').selectOption('Inside oven');
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
+  await rows.nth(1).getByLabel('Qty').fill('2');
+  await rows.nth(1).getByLabel('Rate ($)').fill('25.5');
+  await page.getByLabel('Discount ($)').fill('10');
+  await page.getByLabel('Sales tax (%)').fill('6.5');
+  const sheet = page.getByRole('article', { name: 'Invoice preview' });
+  await expect(sheet).toContainText('Jane Smith');
+  await expect(sheet).toContainText('Inside oven');
+  await expect(page.locator('#p-subtotal')).toHaveText('$171.00');
+  await expect(page.locator('#p-discount')).toHaveText('−$10.00');
+  await expect(page.locator('#p-tax')).toHaveText('$10.47');
+  await expect(page.locator('#p-total')).toHaveText('$171.47');
+  await rows.nth(1).getByRole('button', { name: 'Remove line 2' }).click();
+  await expect(page.locator('#p-total')).toHaveText('$117.15');
 });
