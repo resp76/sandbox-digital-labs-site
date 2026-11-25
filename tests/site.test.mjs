@@ -17,6 +17,7 @@ const pages = {
   peekQrPrivacy: 'peek-qr/privacy/index.html',
   peekQrTerms: 'peek-qr/terms/index.html',
   cleaningInvoice: 'cleaning-invoice/index.html',
+  cleanBillPrivacy: 'cleaning-invoice/privacy/index.html',
 };
 
 function assertPage(relative, canonicalPath) {
@@ -197,4 +198,15 @@ test('the free cleaning invoice page is public, listed, and keeps typed data in 
   assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)/i, 'inline scripts would need a CSP hash');
   const js = read('cleaning-invoice/invoice.js');
   assert.doesNotMatch(js, /\bfetch\(|XMLHttpRequest|sendBeacon/, 'the invoice tool must not send data anywhere');
+});
+
+test('the CleanBill privacy policy is public, listed, and matches what the app does', () => {
+  const privacy = assertPage(pages.cleanBillPrivacy, '/cleaning-invoice/privacy/');
+  assert.match(read('sitemap.xml'), /cleaning-invoice\/privacy\//);
+  assert.match(privacy, /stored only on your device/);
+  assert.match(privacy, /No advertising/);
+  assert.match(privacy, /App Store/);
+  assert.match(privacy, /contact@sandboxdigitallabs\.com/);
+  // The app pays through Apple only; naming a purchase SDK here would be wrong until one is added.
+  assert.doesNotMatch(privacy, /RevenueCat/);
 });
