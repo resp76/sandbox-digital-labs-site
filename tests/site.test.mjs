@@ -18,6 +18,7 @@ const pages = {
   peekQrTerms: 'peek-qr/terms/index.html',
   cleaningInvoice: 'cleaning-invoice/index.html',
   cleanBillPrivacy: 'cleaning-invoice/privacy/index.html',
+  cleanBillSupport: 'cleaning-invoice/support/index.html',
 };
 
 function assertPage(relative, canonicalPath) {
@@ -209,4 +210,13 @@ test('the CleanBill privacy policy is public, listed, and matches what the app d
   assert.match(privacy, /contact@sandboxdigitallabs\.com/);
   // The app pays through Apple only; naming a purchase SDK here would be wrong until one is added.
   assert.doesNotMatch(privacy, /RevenueCat/);
+});
+
+test('the CleanBill support page (the App Store Support URL) is public, listed, and reachable by email', () => {
+  const support = assertPage(pages.cleanBillSupport, '/cleaning-invoice/support/');
+  assert.match(read('sitemap.xml'), /cleaning-invoice\/support\//);
+  assert.match(support, /mailto:contact@sandboxdigitallabs\.com\?subject=CleanBill%20support/);
+  for (const answer of [/Restore purchases/, /Invoice again/, /Send reminder/, /never takes a cut/, /3 invoices or estimates are free/])
+    assert.match(support, answer);
+  assert.match(support, /href="\/cleaning-invoice\/privacy\/"/);
 });

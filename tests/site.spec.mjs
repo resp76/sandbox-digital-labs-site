@@ -13,6 +13,8 @@ const pages = [
   ['/peek-qr/privacy/', 'Peek QR Privacy Policy', 'Peek QR Privacy Policy'],
   ['/peek-qr/terms/', 'Peek QR Terms of Use', 'Peek QR Terms of Use'],
   ['/cleaning-invoice/', 'Cleaning invoice', 'Free cleaning invoice template'],
+  ['/cleaning-invoice/privacy/', 'CleanBill Privacy Policy', 'CleanBill Privacy Policy'],
+  ['/cleaning-invoice/support/', 'CleanBill support', 'How can we help'],
 ];
 
 for (const [route, , heading] of pages) {
@@ -83,7 +85,7 @@ test('the App Store call to action points at the live listing', async ({ page })
 // WCAG 2.1 adds criteria that axe cannot evaluate statically. These two are the
 // ones most often broken by ordinary layout work, so they are asserted directly.
 
-const routes = ['/', '/promptcept/', '/promptcept/support/', '/promptcept/terms/', '/privacy/', '/terms/', '/accessibility/', '/peek-qr/', '/peek-qr/privacy/', '/peek-qr/terms/', '/cleaning-invoice/'];
+const routes = ['/', '/promptcept/', '/promptcept/support/', '/promptcept/terms/', '/privacy/', '/terms/', '/accessibility/', '/peek-qr/', '/peek-qr/privacy/', '/peek-qr/terms/', '/cleaning-invoice/', '/cleaning-invoice/privacy/', '/cleaning-invoice/support/'];
 
 for (const route of routes) {
   test(`${route} reflows to 320px without horizontal scrolling (WCAG 1.4.10)`, async ({ page }) => {
