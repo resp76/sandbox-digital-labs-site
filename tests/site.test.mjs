@@ -138,6 +138,7 @@ test('the site states the shipped availability of Peek QR and links to the App S
   for (const [name, html] of [['home', read(pages.home)], ['peek-qr', product]]) {
     assert.doesNotMatch(html, /coming soon/i, name + ' must not claim Peek QR is unreleased');
     assert.ok(html.includes(listing), name + ' must link to the Peek QR App Store listing');
+    assert.ok(html.includes('href="https://play.google.com/store/apps/details?id=com.digitalsandboxlabs.qrscanner"'), name + ' must link to the Peek QR Google Play listing');
   }
   assert.match(product, /<meta name="apple-itunes-app" content="app-id=6831228174"/, 'peek-qr must carry the Smart App Banner');
 });
