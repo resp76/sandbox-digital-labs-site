@@ -123,11 +123,13 @@ test('the site states the shipped availability of PromptCept and links to the Ap
     assert.doesNotMatch(html, /currently in testing/i, name + ' must not claim the app is in testing');
     assert.doesNotMatch(html, /being prepared for/i, name + ' must not claim the app is unreleased');
     assert.match(html, /apps\.apple\.com\/us\/app\/promptcept\/id6802508418/, name + ' must link to the App Store');
+    assert.ok(html.includes('href="https://play.google.com/store/apps/details?id=com.sandboxdigitallabs.promptcept"'), name + ' must link to Google Play');
+    assert.doesNotMatch(html, /Android version is not yet released/i, name + ' must not claim Android is unreleased');
   }
-  // Android has never shipped; the structured data must not claim it.
+  // Android shipped 2026-11-26.
   const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(product)[1];
   const data = JSON.parse(ld);
-  assert.equal(data.operatingSystem, 'iOS');
+  assert.equal(data.operatingSystem, 'iOS, Android');
   assert.equal(data.downloadUrl, 'https://apps.apple.com/us/app/promptcept/id6802508418');
 });
 
